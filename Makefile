@@ -117,8 +117,8 @@ gen_ref:
 	cp -a $(REFILL).refill $(REFILL)
 	src/pcbnew_do export --output_name zone-refill.pdf $(REFILL) $(REFDIR) F.Cu B.Cu Edge.Cuts
 	cp -a $(REFILL).ok $(REFILL)
-	# src/pcbnew_do export --output_name good_pcb_with_dwg.pdf $(GOOD) $(REFDIR) F.Cu F.SilkS Dwgs.User Edge.Cuts
-	# src/pcbnew_do export --output_name good_pcb_inners.pdf   $(GOOD) $(REFDIR) F.Cu F.SilkS GND.Cu Signal1.Cu Signal2.Cu Power.Cu Edge.Cuts
+	src/pcbnew_do export --output_name good_pcb_with_dwg.pdf $(GOOD) $(REFDIR) F.Cu F.SilkS Dwgs.User Edge.Cuts
+	src/pcbnew_do export --output_name good_pcb_inners.pdf   $(GOOD) $(REFDIR) F.Cu F.SilkS GND.Cu Signal1.Cu Signal2.Cu Power.Cu Edge.Cuts
 	src/pcbnew_do export --list $(GOOD) > $(REFDIR)good_pcb_layers.txt
 	src/pcbnew_do export --scaling 4 --pads 0 --no-title --monochrome --separate --output_name good_pcb_sep_bn.pdf $(GOOD) $(REFDIR) F.Cu F.SilkS Dwgs.User Edge.Cuts
 	src/eeschema_do export --file_format pdf --all $(GOOD_SCH) $(REFDIR)
