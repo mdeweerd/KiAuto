@@ -478,7 +478,7 @@ def create_pcbnew_config(cfg):
                                 "layers": sorted(used_layers)}
             conf["plot"] = {"check_zones_before_plotting": cfg.fill_zones,
                             "mirror": cfg.mirror,
-                            "one_page_per_layer": int(not cfg.separate),
+                            "all_layers_on_one_page": int(not cfg.separate),
                             "pads_drill_mode": cfg.pads}
             conf["window"] = {"size_x": cfg.rec_width,
                               "size_y": cfg.rec_height}
