@@ -69,7 +69,7 @@ jobs:
 
   coveralls:
     name: Finish Coveralls
-    needs: test
+    needs: [test_normal, test_nightly]
     runs-on: ubuntu-latest
     steps:
     - name: Finished
