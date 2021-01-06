@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - KiCad environment variables preservation in eeschema_do
 
+### Fixed
+- No KiCad config assumed, now we ask KiCad
+
 ## [1.5.3] - 2020-10-15
 ### Added
 - Support for KiCad 5.99 DRC/ERC reports.

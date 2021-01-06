@@ -100,15 +100,20 @@ class Config(object):
                          " Is KiCad installed?"
                          " Do you need to add it to PYTHONPATH?")
             exit(NO_PCBNEW_MODULE)
-        m = re.match(r'(\d+)\.(\d+)\.(\d+)', pcbnew.GetBuildVersion())
+        kicad_version = pcbnew.GetBuildVersion()
+        m = re.match(r'(\d+)\.(\d+)\.(\d+)', kicad_version)
         self.kicad_version_major = int(m.group(1))
         self.kicad_version_minor = int(m.group(2))
         self.kicad_version_patch = int(m.group(3))
         self.kicad_version = self.kicad_version_major*1000000+self.kicad_version_minor*1000+self.kicad_version_patch
-        logger.debug('Detected KiCad v{}.{}.{} ({})'.format(self.kicad_version_major, self.kicad_version_minor,
-                     self.kicad_version_patch, self.kicad_version))
+        logger.debug('Detected KiCad v{}.{}.{} ({} {})'.format(self.kicad_version_major, self.kicad_version_minor,
+                     self.kicad_version_patch, kicad_version, self.kicad_version))
         # Config file names
-        self.kicad_conf_path = os.path.join(os.environ['HOME'], '.config/'+self.kicad_conf_dir)
+        if self.kicad_version >= KICAD_VERSION_5_99:
+            self.kicad_conf_path = pcbnew.SETTINGS_MANAGER.GetUserSettingsPath()
+        else:
+            self.kicad_conf_path = pcbnew.GetKicadConfigPath()
+        logger.debug('Config path {}'.format(self.kicad_conf_path))
         # - eeschema config
         self.conf_eeschema = os.path.join(self.kicad_conf_path, 'eeschema')
         self.conf_eeschema_bkp = None
