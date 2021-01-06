@@ -111,6 +111,8 @@ class Config(object):
         # Config file names
         if self.kicad_version >= KICAD_VERSION_5_99:
             self.kicad_conf_path = pcbnew.SETTINGS_MANAGER.GetUserSettingsPath()
+            if ng_ver:
+                self.kicad_conf_path = self.kicad_conf_path.replace('/kicad/', '/kicadnightly/')
         else:
             self.kicad_conf_path = pcbnew.GetKicadConfigPath()
         logger.debug('Config path {}'.format(self.kicad_conf_path))
