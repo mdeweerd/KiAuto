@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Copyright (c) 2020 Salvador E. Tropea
-# Copyright (c) 2020 Instituto Nacional de Tecnologïa Industrial
+# Copyright (c) 2020-2021 Salvador E. Tropea
+# Copyright (c) 2020-2021 Instituto Nacional de Tecnologïa Industrial
 # Copyright (c) 2019 Jesse Vincent (@obra)
 # Copyright (c) 2018-2019 Seppe Stas (@seppestas) (Productize SPRL)
 # Based on ideas by: Scott Bezek (@scottbez1)
@@ -45,7 +45,7 @@ from kiauto.misc import (REC_W, REC_H, __version__, NO_SCHEMATIC, EESCHEMA_CFG_P
                          WAIT_START, WRONG_SCH_NAME, EESCHEMA_ERROR, Config, KICAD_VERSION_5_99,
                          USER_HOTKEYS_PRESENT, __copyright__, __license__)
 from kiauto.ui_automation import (PopenContext, xdotool, wait_for_window, wait_not_focused, recorded_xvfb, clipboard_store,
-                                  wait_point)
+                                  wait_point, text_replace)
 
 TITLE_CONFIRMATION = '^Confirmation$'
 TITLE_REMAP_SYMBOLS = '^Remap Symbols$'
@@ -270,7 +270,6 @@ def eeschema_parse_erc(cfg):
 
 
 def eeschema_run_erc_schematic_5_1(cfg):
-    clipboard_store(cfg.output_file)
     # Open the ERC dialog
     logger.info('Open Tools->Electrical Rules Checker')
     wait_point(cfg)
@@ -285,7 +284,7 @@ def eeschema_run_erc_schematic_5_1(cfg):
     # Paste the name
     logger.info('Pasting output file')
     wait_point(cfg)
-    xdotool(['key', 'ctrl+a', 'ctrl+v'])
+    text_replace(cfg.output_file)
     # Wait before sending the `Return`
     time.sleep(1)
     # Run the ERC
@@ -413,8 +412,6 @@ def eeschema_bom_xml_commands(cfg):
     else:
         open_keys = ['alt+t', 'm']
         exit_keys = ['Tab', 'Tab', 'Tab', 'Tab', 'Tab', 'Tab', 'Tab', 'Tab', 'Tab', 'Return']
-    # Put in the clipboard the xsltproc command
-    clipboard_store('xsltproc -o "'+cfg.output_file+'" "/usr/share/kicad/plugins/bom2grouped_csv.xsl" "%I"')
     # Open the dialog
     logger.info('Open Tools->Generate Bill of Materials')
     wait_point(cfg)
@@ -423,9 +420,8 @@ def eeschema_bom_xml_commands(cfg):
     # Select the command input and paste the command
     logger.info('Paste xslt command')
     wait_point(cfg)
-    xdotool(['key', 'Tab', 'Tab', 'Tab', 'Tab', 'Tab', 'Tab', 'ctrl+v'])
-    # Wait before sending the `Return`
-    time.sleep(1)
+    xdotool(['key', 'Tab', 'Tab', 'Tab', 'Tab', 'Tab', 'Tab'])
+    text_replace('xsltproc -o "'+cfg.output_file+'" "/usr/share/kicad/plugins/bom2grouped_csv.xsl" "%I"')
     # Generate the netlist
     logger.info('Generating netlist')
     wait_point(cfg)

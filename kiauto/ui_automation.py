@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Copyright (c) 2020 Salvador E. Tropea
-# Copyright (c) 2020 Instituto Nacional de Tecnologïa Industrial
+# Copyright (c) 2020-2021 Salvador E. Tropea
+# Copyright (c) 2020-2021 Instituto Nacional de Tecnologïa Industrial
 # Copyright (c) 2019 Jesse Vincent (@obra)
 # Copyright (c) 2018-2019 Seppe Stas (@seppestas) (Productize SPRL)
 # Copyright (c) 2015-2016 Scott Bezek (@scottbez1)
@@ -214,6 +214,11 @@ def clipboard_store(string):
         logger.error('Failed to store string in clipboard')
         logger.error('xclip returned %d' % ret_code)
         raise
+
+
+def text_replace(string):
+    """ Used to replace a text in an input text widget. """
+    xdotool(['key', 'ctrl+a', 'type', string])
 
 
 def clipboard_retrieve():
