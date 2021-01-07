@@ -44,7 +44,7 @@ from kiauto.file_util import (load_filters, wait_for_file_created_by_process, ap
 from kiauto.misc import (REC_W, REC_H, __version__, NO_SCHEMATIC, EESCHEMA_CFG_PRESENT, KICAD_CFG_PRESENT,
                          WAIT_START, WRONG_SCH_NAME, EESCHEMA_ERROR, Config, KICAD_VERSION_5_99,
                          USER_HOTKEYS_PRESENT, __copyright__, __license__)
-from kiauto.ui_automation import (PopenContext, xdotool, wait_for_window, wait_not_focused, recorded_xvfb, clipboard_store,
+from kiauto.ui_automation import (PopenContext, xdotool, wait_for_window, wait_not_focused, recorded_xvfb,
                                   wait_point, text_replace)
 
 TITLE_CONFIRMATION = '^Confirmation$'
@@ -103,7 +103,10 @@ def dismiss_already_running():
     wait_for_window(nf_title, nf_title, 1)
     logger.info('Dismiss eeschema already running')
     xdotool(['search', '--onlyvisible', '--name', nf_title, 'windowfocus'])
+    logger.debug('Found, sending Return')
     xdotool(['key', 'Return'])
+    logger.debug('Wait a little, this dialog is slow')
+    time.sleep(5)
 
 
 def wait_eeschema(cfg, time, others=None):
@@ -183,8 +186,6 @@ def eeschema_plot_schematic(cfg):
         open_keys = ['ctrl+shift+p']
     else:
         open_keys = ['alt+f', 'l']
-    # Put the file name in the clipboard
-    clipboard_store(cfg.output_dir)
     # Open the dialog
     logger.info('Open File->pLot')
     wait_point(cfg)
@@ -195,12 +196,11 @@ def eeschema_plot_schematic(cfg):
     # For this reason we move to the left and select all.
     logger.info('Clear input text')
     wait_point(cfg)
-    xdotool(['key', 'Left', 'ctrl+a'])
+    xdotool(['key', 'Left'])
     # Paste the file name
     logger.info('Paste output directory')
     wait_point(cfg)
-    xdotool(['key', 'ctrl+v'])
-    time.sleep(1)
+    text_replace(cfg.output_dir)
     # Press the "Plot xxx" button
     logger.info('Move to the "plot" button')
     wait_point(cfg)
@@ -285,8 +285,6 @@ def eeschema_run_erc_schematic_5_1(cfg):
     logger.info('Pasting output file')
     wait_point(cfg)
     text_replace(cfg.output_file)
-    # Wait before sending the `Return`
-    time.sleep(1)
     # Run the ERC
     logger.info('Run ERC')
     wait_point(cfg)
@@ -305,9 +303,19 @@ def eeschema_run_erc_schematic_6_0(cfg):
     # Open the ERC dialog
     logger.info('Open Tools->Electrical Rules Checker')
     wait_point(cfg)
-    xdotool(['key', 'ctrl+shift+i'])
+    xdotool(['key', 'Escape', 'ctrl+shift+i'])
     # Wait dialog
-    wait_for_window('Electrical Rules Checker dialog', 'Electrical Rules Checker')
+    retry = False
+    try:
+        wait_for_window('Electrical Rules Checker dialog', 'Electrical Rules Checker')
+    except RuntimeError:  # pragma: no cover
+        # Perhaps the fill took too muchm try again
+        retry = True
+    if retry:
+        logger.info('ERC dialog did not open, retrying')
+        wait_eeschema_start(cfg)
+        xdotool(['key', 'Escape', 'ctrl+shift+i'])
+        wait_for_window('Electrical Rules Checker dialog', 'Electrical Rules Checker')
     wait_point(cfg)
     # Run the ERC
     logger.info('Run ERC')
@@ -318,7 +326,6 @@ def eeschema_run_erc_schematic_6_0(cfg):
     #
     time.sleep(15)
     # Save the report
-    clipboard_store(cfg.output_file)
     logger.info('Open the save dialog')
     wait_point(cfg)
     xdotool(['key', 'Tab', 'Tab', 'Tab', 'Tab', 'Tab', 'Tab', 'Tab', 'Tab', 'Return'])
@@ -327,9 +334,7 @@ def eeschema_run_erc_schematic_6_0(cfg):
     # Paste the name
     logger.info('Pasting output file')
     wait_point(cfg)
-    xdotool(['key', 'ctrl+a', 'ctrl+v'])
-    # Wait before sending the `Return`
-    time.sleep(1)
+    text_replace(cfg.output_file)
     # Wait for report created
     logger.info('Wait for ERC file creation')
     wait_point(cfg)
@@ -359,8 +364,6 @@ def eeschema_netlist_commands(cfg):
         open_keys = ['alt+t', 'n']
         generate_keys = ['Tab', 'Tab', 'Return']
         dialog_name = 'Netlist'
-    # Put the file name in the clipboard
-    clipboard_store(cfg.output_file)
     # Open the dialog
     logger.info('Open Tools->Generate Netlist File')
     wait_point(cfg)
@@ -389,9 +392,7 @@ def eeschema_netlist_commands(cfg):
         wait_for_window('Netlist File save dialog', 'Save Netlist File')
     logger.info('Pasting output file')
     wait_point(cfg)
-    xdotool(['key', 'ctrl+a', 'ctrl+v'])
-    # Wait before sending the `Return`
-    time.sleep(1)
+    text_replace(cfg.output_file)
     # Confirm the name and generate the netlist
     logger.info('Generate Netlist')
     wait_point(cfg)

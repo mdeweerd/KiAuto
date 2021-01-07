@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# Copyright (c) 2020 Salvador E. Tropea
-# Copyright (c) 2020 Instituto Nacional de Tecnologïa Industrial
+# Copyright (c) 2020-2021 Salvador E. Tropea
+# Copyright (c) 2020-2021 Instituto Nacional de Tecnologïa Industrial
 # Copyright (c) 2019 Jesse Vincent (@obra)
 # Copyright (c) 2018-2019 Seppe Stas (@seppestas) (Productize SPRL)
 # Based on ideas by: Scott Bezek (@scottbez1)
@@ -43,8 +43,8 @@ from kiauto.file_util import (load_filters, wait_for_file_created_by_process, ap
 from kiauto.misc import (REC_W, REC_H, __version__, NO_PCB, PCBNEW_CFG_PRESENT, WAIT_START, WRONG_LAYER_NAME,
                          WRONG_PCB_NAME, PCBNEW_ERROR, WRONG_ARGUMENTS, Config, KICAD_VERSION_5_99, USER_HOTKEYS_PRESENT,
                          CORRUPTED_PCB, __copyright__, __license__)
-from kiauto.ui_automation import (PopenContext, xdotool, wait_not_focused, wait_for_window, recorded_xvfb, clipboard_store,
-                                  wait_point)
+from kiauto.ui_automation import (PopenContext, xdotool, wait_not_focused, wait_for_window, recorded_xvfb,
+                                  wait_point, text_replace)
 
 TITLE_CONFIRMATION = '^Confirmation$'
 TITLE_ERROR = '^Error$'
@@ -104,7 +104,10 @@ def dismiss_already_running():
 
     logger.info('Dismiss pcbnew already running')
     xdotool(['search', '--onlyvisible', '--name', nf_title, 'windowfocus'])
+    logger.debug('Found, sending Return')
     xdotool(['key', 'Return'])
+    logger.debug('Wait a little, this dialog is slow')
+    sleep(5)
 
 
 def dismiss_warning():  # pragma: no cover
@@ -188,21 +191,7 @@ def exit_pcbnew(cfg):
     wait_point(cfg)
 
 
-def print_layers(cfg):
-    if cfg.kicad_version >= KICAD_VERSION_5_99:
-        print_dialog_keys = ['ctrl+p']
-    else:
-        # We should be able to use Ctrl+P, unless the user configured it
-        # otherwise. We aren't configuring hotkeys for 5.1 so is better
-        # to just use the menu accelerators (removed on KiCad 6)
-        print_dialog_keys = ['alt+f', 'p']
-    # Fill zones if the user asked for it
-    if cfg.fill_zones:
-        logger.info('Fill zones')
-        wait_point(cfg)
-        xdotool(['key', 'b'])
-        # Wait for complation
-        sleep(1)
+def open_print_dialog(cfg, print_dialog_keys):
     # Open the KiCad Print dialog
     logger.info('Open File->Print')
     wait_point(cfg)
@@ -220,6 +209,33 @@ def print_layers(cfg):
         wait_point(cfg)
         xdotool(['key']+print_dialog_keys)
         id = wait_for_window('Print dialog', 'Print')
+    return id
+
+
+def print_layers(cfg):
+    if cfg.kicad_version >= KICAD_VERSION_5_99:
+        print_dialog_keys = ['ctrl+p']
+    else:
+        # We should be able to use Ctrl+P, unless the user configured it
+        # otherwise. We aren't configuring hotkeys for 5.1 so is better
+        # to just use the menu accelerators (removed on KiCad 6)
+        print_dialog_keys = ['alt+f', 'p']
+    # Fill zones if the user asked for it
+    if cfg.fill_zones:
+        logger.info('Fill zones')
+        wait_point(cfg)
+        # Make sure KiCad is responding
+        # We open the dialog and then we close it
+        id = open_print_dialog(cfg, print_dialog_keys)
+        xdotool(['key', 'Escape'])
+        wait_not_focused(id[0])
+        wait_pcbnew()
+        # Now we fill the zones
+        xdotool(['key', 'b'])
+        # Wait for complation
+        sleep(1)
+        wait_pcbnew()
+    id = open_print_dialog(cfg, print_dialog_keys)
     # Open the gtk print dialog
     wait_point(cfg)
     # Two possible options here:
@@ -242,12 +258,7 @@ def print_layers(cfg):
     id_sel_f = wait_for_window('Select a filename', '(Select a filename|%s)' % cfg.select_a_filename, 2)
     logger.info('Pasting output dir')
     wait_point(cfg)
-    xdotool(['key',
-             # Select all
-             'ctrl+a',
-             # Paste
-             'ctrl+v'])
-    sleep(1)
+    text_replace(cfg.output_file)
     xdotool(['key',
              # Select this name
              'Return'])
@@ -289,7 +300,8 @@ def run_drc_5_1(cfg):
     xdotool(['key', 'Tab', 'Tab', 'Tab', 'Tab', 'space', 'Tab', 'Tab', 'Tab', 'Tab'])
     logger.info('Pasting output dir')
     wait_point(cfg)
-    xdotool(['key', 'ctrl+v', 'Return'])
+    text_replace(cfg.output_file)
+    xdotool(['key', 'Return'])
 
     wait_for_window('Report completed dialog', 'Disk File Report Completed')
     wait_point(cfg)
@@ -318,7 +330,6 @@ def run_drc_6_0(cfg):
     #
     sleep(12)
     # Save the DRC
-    clipboard_store(cfg.output_file)
     logger.info('Open the save dialog')
     wait_point(cfg)
     logger.info('Save DRC')
@@ -329,7 +340,7 @@ def run_drc_6_0(cfg):
     # Paste the name
     logger.info('Pasting output file')
     wait_point(cfg)
-    xdotool(['key', 'ctrl+a', 'ctrl+v'])
+    text_replace(cfg.output_file)
     # Wait for report created
     logger.info('Wait for DRC file creation')
     wait_point(cfg)
@@ -683,7 +694,6 @@ if __name__ == '__main__':
         with recorded_xvfb(cfg):
             with PopenContext([cfg.pcbnew, cfg.input_file], stderr=subprocess.DEVNULL, close_fds=True,
                               start_new_session=True) as pcbnew_proc:
-                clipboard_store(output_file)
                 cfg.pcbnew_pid = pcbnew_proc.pid
                 wait_pcbew_start(cfg)
                 if args.command == 'export':

@@ -16,8 +16,7 @@ and efficiently copy-pasting strings in the UI.
 Based on splitflap/electronics/scripts/export_util.py by Scott Bezek
 """
 import os
-from subprocess import (Popen, CalledProcessError, TimeoutExpired, call, check_output, STDOUT, DEVNULL, PIPE)
-import tempfile
+from subprocess import Popen, CalledProcessError, TimeoutExpired, call, check_output, STDOUT, DEVNULL
 import time
 import shutil
 import signal
@@ -187,33 +186,33 @@ def xdotool(command):
     # return check_output(['xdotool'] + command)
 
 
-def clipboard_store(string):
-    # I don't know how to use Popen/run to make it run with pipes without
-    # either blocking or losing the messages.
-    # Using files works really well.
-    logger.debug('Clipboard store "'+string+'"')
-    # Write the text to a file
-    fd_in, temp_in = tempfile.mkstemp(text=True)
-    os.write(fd_in, string.encode())
-    os.close(fd_in)
-    # Capture output
-    fd_out, temp_out = tempfile.mkstemp(text=True)
-    process = Popen(['xclip', '-selection', 'clipboard', temp_in], stdout=fd_out, stderr=STDOUT)
-    ret_code = process.wait()
-    os.remove(temp_in)
-    os.lseek(fd_out, 0, os.SEEK_SET)
-    ret_text = os.read(fd_out, 1000)
-    os.close(fd_out)
-    os.remove(temp_out)
-    ret_text = ret_text.decode()
-    if ret_text:  # pragma: no cover
-        logger.error('Failed to store string in clipboard')
-        logger.error(ret_text)
-        raise
-    if ret_code:  # pragma: no cover
-        logger.error('Failed to store string in clipboard')
-        logger.error('xclip returned %d' % ret_code)
-        raise
+# def clipboard_store(string):
+#     # I don't know how to use Popen/run to make it run with pipes without
+#     # either blocking or losing the messages.
+#     # Using files works really well.
+#     logger.debug('Clipboard store "'+string+'"')
+#     # Write the text to a file
+#     fd_in, temp_in = tempfile.mkstemp(text=True)
+#     os.write(fd_in, string.encode())
+#     os.close(fd_in)
+#     # Capture output
+#     fd_out, temp_out = tempfile.mkstemp(text=True)
+#     process = Popen(['xclip', '-selection', 'clipboard', temp_in], stdout=fd_out, stderr=STDOUT)
+#     ret_code = process.wait()
+#     os.remove(temp_in)
+#     os.lseek(fd_out, 0, os.SEEK_SET)
+#     ret_text = os.read(fd_out, 1000)
+#     os.close(fd_out)
+#     os.remove(temp_out)
+#     ret_text = ret_text.decode()
+#     if ret_text:  # pragma: no cover
+#         logger.error('Failed to store string in clipboard')
+#         logger.error(ret_text)
+#         raise
+#     if ret_code:  # pragma: no cover
+#         logger.error('Failed to store string in clipboard')
+#         logger.error('xclip returned %d' % ret_code)
+#         raise
 
 
 def text_replace(string):
@@ -221,13 +220,13 @@ def text_replace(string):
     xdotool(['key', 'ctrl+a', 'type', string])
 
 
-def clipboard_retrieve():
-    p = Popen(['xclip', '-o', '-selection', 'clipboard'], stdout=PIPE, stderr=STDOUT)
-    output = ''
-    for line in p.stdout:
-        output += line.decode()
-    logger.debug('Clipboard retrieve "'+output+'"')
-    return output
+# def clipboard_retrieve():
+#     p = Popen(['xclip', '-o', '-selection', 'clipboard'], stdout=PIPE, stderr=STDOUT)
+#     output = ''
+#     for line in p.stdout:
+#         output += line.decode()
+#     logger.debug('Clipboard retrieve "'+output+'"')
+#     return output
 
 
 def debug_window(id=None):  # pragma: no cover

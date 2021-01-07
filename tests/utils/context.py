@@ -344,9 +344,12 @@ class TestContext(object):
                 logging.debug('Started `'+cmd+'` with PID: '+str(self.proc.pid))
                 assert pid_exists(self.proc.pid)
                 yield
+                logging.debug('Ending KiCad context')
 
     def stop_kicad(self):
         if self.proc:
+            logging.debug('Stopping KiCad')
+            assert pid_exists(self.proc.pid)
             self.proc.terminate()
             self.proc = None
 

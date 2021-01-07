@@ -116,11 +116,14 @@ def test_erc_remap():
     # This is an old project that I can't edit.
     # KiCad 6 reports various issues.
     # This check is oriented to check we detect the need for update.
-    ctx.run(cmd, ignore_ret=True)
-    ctx.expect_out_file(rep)
-    # KiCad 5.99 20201013 doesn't use a modal window for the remap
-    # So we can't detect it
+    # It doesn't work any more on KiCad 5.99 20210107.
+    # It opens a new window, not really modal, the main window keeps the focus,
+    # but doesn't respond until the other is finished.
+    # KiCad is fully broken about handling modal dialogs, they blame wxWidgets,
+    # but what they do is a really useless workaround.
     if ctx.kicad_version < context.KICAD_VERSION_5_99:
+        ctx.run(cmd, ignore_ret=True)
+        ctx.expect_out_file(rep)
         assert ctx.search_err(r"Schematic needs update") is not None
     ctx.clean_up()
 

@@ -33,8 +33,7 @@ The automation is carried out emulating the user interaction.
 ## Introduction
 
 Current implementation uses a virtual X server ([xvfb](https://www.x.org/releases/X11R7.6/doc/man/man1/Xvfb.1.xhtml)),
-sends key events and detects which window is focused using [xdotool](https://github.com/jordansissel/xdotool/)
-and handles the clipboard using [xclip](https://github.com/astrand/xclip).
+sends key events and detects which window is focused using [xdotool](https://github.com/jordansissel/xdotool/).
 This means it works for Linux. KiCad is also available for Windows and MacOSX, help to port the scripts will be appreciated.
 
 Currently tested and working:
@@ -60,7 +59,6 @@ If you are installing from a Debian package you don't need to worry about depend
 
 - [**KiCad**](http://kicad-pcb.org/) 5.1.x
 - [**xdotool**](https://github.com/jordansissel/xdotool)
-- [**xclip**](https://github.com/astrand/xclip)
 - [**xsltproc**](http://xmlsoft.org/xslt/) (usually installed as a KiCad dependency). Only needed for BoMs.
 
 If you want to debug problems you could also need:
