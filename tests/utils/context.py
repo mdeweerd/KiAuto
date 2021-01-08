@@ -30,6 +30,8 @@ def usable_cmd(cmd):
 
 
 def get_config_vars_ini(file):
+    if not os.path.isfile(file):
+        return None
     config = configparser.ConfigParser()
     with open(file, "rt") as f:
         data = f.read()
@@ -59,7 +61,7 @@ class TestContext(object):
             self.kicad_cfg_dir = pcbnew.GetKicadConfigPath()
             self.kicad_conf = os.path.join(self.kicad_cfg_dir, 'kicad_common')
             env = get_config_vars_ini(self.kicad_conf)
-            if 'kicad_config_home' in env:
+            if env and 'kicad_config_home' in env:
                 self.kicad_cfg_dir = env['kicad_config_home']
             self.board_dir = '../kicad5'
             self.sch_ext = '.sch'

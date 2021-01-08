@@ -182,13 +182,16 @@ class Config(object):
         self.err_filters = []
 
     def load_kicad_environment(self, logger):
+        self.env = {}
         if self.conf_kicad_json:
-            self.env = self.get_config_vars_json(self.conf_kicad)
+            env = self.get_config_vars_json(self.conf_kicad)
+            if env:
+                self.env = env
         else:
             env = self.get_config_vars_ini(self.conf_kicad)
-            self.env = {}
-            for k, v in env.items():
-                self.env[k.upper()] = v
+            if env:
+                for k, v in env.items():
+                    self.env[k.upper()] = v
         logger.debug('KiCad environment: '+str(self.env))
 
     @staticmethod
