@@ -161,7 +161,7 @@ def wait_pcbew_start(cfg):
             wait_pcbnew(5)
         except RuntimeError:  # pragma: no cover
             logger.error('Time-out waiting for pcbnew, giving up')
-            raise
+            exit(PCBNEW_ERROR)
 
 
 def exit_pcbnew(cfg):
