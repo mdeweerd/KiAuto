@@ -202,7 +202,8 @@ class TestContext(object):
             retry -= 1
             if retry:
                 logging.debug('Retrying ...')
-                os.rename(self.output_dir, self.output_dir+str(retry))
+                os.rename(self.output_dir, self.output_dir+'_RETRY_'+str(retry))
+                os.makedirs(self.output_dir, exist_ok=True)
         if not ignore_ret:
             assert ret_code == exp_ret, "got {} when {} expected".format(ret_code, exp_ret)
         if use_a_tty:

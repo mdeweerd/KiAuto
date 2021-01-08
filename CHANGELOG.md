@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - KiCad environment variables preservation in eeschema_do
+- Support for KICAD_CONFIG_HOME defined from inside KiCad
 
 ### Fixed
 - No KiCad config assumed, now we ask KiCad
