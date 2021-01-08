@@ -202,6 +202,7 @@ class TestContext(object):
             retry -= 1
             if retry:
                 logging.debug('Retrying ...')
+                os.rename(self.output_dir, self.output_dir+str(retry))
         if not ignore_ret:
             assert ret_code == exp_ret, "got {} when {} expected".format(ret_code, exp_ret)
         if use_a_tty:
