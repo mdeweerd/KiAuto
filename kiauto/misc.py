@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2020 Salvador E. Tropea
-# Copyright (c) 2020 Instituto Nacional de Tecnologïa Industrial
+# Copyright (c) 2020-2021 Salvador E. Tropea
+# Copyright (c) 2020-2021 Instituto Nacional de Tecnologïa Industrial
 # License: Apache 2.0
 # Project: KiAuto (formerly kicad-automation-scripts)
 import os
 import re
+import json
+import configparser
 from sys import exit, path
 
 # Default W,H for recording
@@ -116,28 +118,40 @@ class Config(object):
         else:
             self.kicad_conf_path = pcbnew.GetKicadConfigPath()
         logger.debug('Config path {}'.format(self.kicad_conf_path))
+        # First we solve kicad_common because it can redirect to another config dir
+        self.conf_kicad = os.path.join(self.kicad_conf_path, 'kicad_common')
+        self.conf_kicad_bkp = None
+        if self.kicad_version >= KICAD_VERSION_5_99:
+            self.conf_kicad += '.json'
+            self.conf_kicad_json = True
+        else:
+            self.conf_kicad_json = False
+        # Read the environment redefinitions used by KiCad
+        if os.path.isfile(self.conf_kicad):
+            self.load_kicad_environment(logger)
+            if 'KICAD_CONFIG_HOME' in self.env and self.kicad_version < KICAD_VERSION_5_99:
+                # The user is redirecting the configuration
+                # It seems to fail for 5.99
+                self.kicad_conf_path = self.env['KICAD_CONFIG_HOME']
+                logger.debug('Redirecting KiCad config path to: '+self.kicad_conf_path)
+        else:
+            logger.warning('Missing KiCad main config file '+self.conf_kicad)
         # - eeschema config
         self.conf_eeschema = os.path.join(self.kicad_conf_path, 'eeschema')
         self.conf_eeschema_bkp = None
         # - pcbnew config
         self.conf_pcbnew = os.path.join(self.kicad_conf_path, 'pcbnew')
         self.conf_pcbnew_bkp = None
-        # - kicad config
-        self.conf_kicad = os.path.join(self.kicad_conf_path, 'kicad_common')
-        self.conf_kicad_bkp = None
         # Config files that migrated to JSON
         # Note that they remain in the old format until saved
         if self.kicad_version >= KICAD_VERSION_5_99:
             self.conf_eeschema += '.json'
             self.conf_pcbnew += '.json'
-            self.conf_kicad += '.json'
-            self.conf_kicad_json = True
             self.conf_eeschema_json = True
             self.conf_pcbnew_json = True
             self.pro_ext = 'kicad_pro'
             self.prl_ext = 'kicad_prl'
         else:
-            self.conf_kicad_json = False
             self.conf_eeschema_json = False
             self.conf_pcbnew_json = False
             self.pro_ext = 'pro'
@@ -167,9 +181,37 @@ class Config(object):
         # Error filters
         self.err_filters = []
 
+    def load_kicad_environment(self, logger):
+        if self.conf_kicad_json:
+            self.env = self.get_config_vars_json(self.conf_kicad)
+        else:
+            env = self.get_config_vars_ini(self.conf_kicad)
+            self.env = {}
+            for k, v in env.items():
+                self.env[k.upper()] = v
+        logger.debug('KiCad environment: '+str(self.env))
+
+    @staticmethod
+    def get_config_vars_json(file):
+        with open(file, "rt") as f:
+            data = json.load(f)
+        if 'environment' in data and 'vars' in data['environment']:
+            return data['environment']['vars']
+        return None
+
+    @staticmethod
+    def get_config_vars_ini(file):
+        config = configparser.ConfigParser()
+        with open(file, "rt") as f:
+            data = f.read()
+        config.read_string('[Various]\n'+data)
+        if 'EnvironmentVariables' in config:
+            return config['EnvironmentVariables']
+        return None
+
 
 __author__ = 'Salvador E. Tropea'
-__copyright__ = 'Copyright 2018-2020, INTI/Productize SPRL'
+__copyright__ = 'Copyright 2018-2021, INTI/Productize SPRL'
 __credits__ = ['Salvador E. Tropea', 'Seppe Stas', 'Jesse Vincent', 'Scott Bezek']
 __license__ = 'Apache 2.0'
 __email__ = 'stropea@inti.gob.ar'

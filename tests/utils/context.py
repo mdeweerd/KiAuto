@@ -5,6 +5,7 @@ import logging
 import subprocess
 import re
 import pytest
+import configparser
 from glob import glob
 from pty import spawn
 from contextlib import contextmanager
@@ -28,6 +29,16 @@ def usable_cmd(cmd):
     return ' '.join(cmd)
 
 
+def get_config_vars_ini(file):
+    config = configparser.ConfigParser()
+    with open(file, "rt") as f:
+        data = f.read()
+    config.read_string('[Various]\n'+data)
+    if 'EnvironmentVariables' in config:
+        return config['EnvironmentVariables']
+    return None
+
+
 class TestContext(object):
     pty_data = None
 
@@ -36,9 +47,6 @@ class TestContext(object):
         if ng_ver:
             # Path to the Python module
             sys.path.insert(0, '/usr/lib/kicad-nightly/lib/python3/dist-packages')
-            self.kicad_cfg_dir = os.path.join(os.environ['HOME'], '.config/kicadnightly/'+ng_ver)
-        else:
-            self.kicad_cfg_dir = os.path.join(os.environ['HOME'], '.config/kicad')
         import pcbnew
         # Detect version
         m = re.match(r'(\d+)\.(\d+)\.(\d+)', pcbnew.GetBuildVersion())
@@ -48,14 +56,19 @@ class TestContext(object):
         self.kicad_version = major*1000000+minor*1000+patch
         logging.debug('Detected KiCad v{}.{}.{} ({})'.format(major, minor, patch, self.kicad_version))
         if self.kicad_version < KICAD_VERSION_5_99:
+            self.kicad_cfg_dir = pcbnew.GetKicadConfigPath()
+            self.kicad_conf = os.path.join(self.kicad_cfg_dir, 'kicad_common')
+            env = get_config_vars_ini(self.kicad_conf)
+            if 'kicad_config_home' in env:
+                self.kicad_cfg_dir = env['kicad_config_home']
             self.board_dir = '../kicad5'
             self.sch_ext = '.sch'
             self.ref_dir = 'tests/reference/5'
             self.pro_ext = '.pro'
             self.pcbnew_conf = os.path.join(self.kicad_cfg_dir, 'pcbnew')
             self.eeschema_conf = os.path.join(self.kicad_cfg_dir, 'eeschema')
-            self.kicad_conf = os.path.join(self.kicad_cfg_dir, 'kicad_common')
         else:
+            self.kicad_cfg_dir = pcbnew.SETTINGS_MANAGER.GetUserSettingsPath().replace('/kicad/', '/kicadnightly/')
             self.board_dir = '../kicad6'
             self.sch_ext = '.kicad_sch'
             self.ref_dir = 'tests/reference/6'
