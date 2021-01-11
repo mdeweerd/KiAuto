@@ -112,10 +112,11 @@ class Config(object):
                      self.kicad_version_patch, kicad_version, self.kicad_version))
         # Config file names
         if self.kicad_version >= KICAD_VERSION_5_99:
-            self.kicad_conf_path = pcbnew.SETTINGS_MANAGER.GetUserSettingsPath()
+            self.kicad_conf_path = pcbnew.GetSettingsManager().GetUserSettingsPath()
             if ng_ver:
                 self.kicad_conf_path = self.kicad_conf_path.replace('/kicad/', '/kicadnightly/')
         else:
+            logger.debug('Ignore the next message about creating a wxApp, is a KiCad 5 bug (6989)')
             self.kicad_conf_path = pcbnew.GetKicadConfigPath()
         logger.debug('Config path {}'.format(self.kicad_conf_path))
         # First we solve kicad_common because it can redirect to another config dir
@@ -131,7 +132,8 @@ class Config(object):
             self.load_kicad_environment(logger)
             if 'KICAD_CONFIG_HOME' in self.env and self.kicad_version < KICAD_VERSION_5_99:
                 # The user is redirecting the configuration
-                # It seems to fail for 5.99
+                # KiCad 5 unintentionally allows it, is a bug, and won't be fixed:
+                # https://forum.kicad.info/t/kicad-config-home-inconsistencies-and-detail/26875
                 self.kicad_conf_path = self.env['KICAD_CONFIG_HOME']
                 logger.debug('Redirecting KiCad config path to: '+self.kicad_conf_path)
         else:
