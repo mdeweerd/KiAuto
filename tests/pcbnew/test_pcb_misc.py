@@ -27,11 +27,11 @@ PROG = 'pcbnew_do'
 BOGUS_PCB = 'bogus.kicad_pcb'
 
 
-def test_pcbnew_config_backup():
+def test_pcbnew_config_backup(test_dir):
     """ Here we test the extreme situation that a previous run left a config
         back-up and the user must take action. """
     prj = 'good-project'
-    ctx = context.TestContext('PCBnew_config_bkp', prj)
+    ctx = context.TestContext(test_dir, 'PCBnew_config_bkp', prj)
     # Create a fake back-up
     if not os.path.isdir(ctx.kicad_cfg_dir):
         logging.debug('Creating KiCad config dir')
@@ -51,10 +51,10 @@ def test_pcbnew_config_backup():
     ctx.clean_up()
 
 
-def test_pcb_not_found():
+def test_pcb_not_found(test_dir):
     """ When the provided .kicad_pcb isn't there """
     prj = 'good-project'
-    ctx = context.TestContext('PCB_not_found', prj)
+    ctx = context.TestContext(test_dir, 'PCB_not_found', prj)
     cmd = [PROG, 'run_drc']
     ctx.run(cmd, NO_PCB, filename='dummy')
     m = ctx.search_err(r'ERROR:.* does not exist')
@@ -62,10 +62,10 @@ def test_pcb_not_found():
     ctx.clean_up()
 
 
-def test_pcb_no_extension():
+def test_pcb_no_extension(test_dir):
     """ KiCad can't load a PCB file without extension """
     prj = 'good-project'
-    ctx = context.TestContext('PCB_no_extension', prj)
+    ctx = context.TestContext(test_dir, 'PCB_no_extension', prj)
     cmd = [PROG, 'run_drc']
     ctx.run(cmd, WRONG_PCB_NAME, filename='Makefile')
     m = ctx.search_err(r'Input files must use an extension')
@@ -73,9 +73,9 @@ def test_pcb_no_extension():
     ctx.clean_up()
 
 
-def test_bogus_pcb():
+def test_bogus_pcb(test_dir):
     """ A broken PCB file """
-    ctx = context.TestContext('Bogus_PCB', 'good-project')
+    ctx = context.TestContext(test_dir, 'Bogus_PCB', 'good-project')
     pcb = ctx.get_out_path(BOGUS_PCB)
     # Create an invalid PCB
     with open(pcb, 'w') as f:
@@ -86,9 +86,9 @@ def test_bogus_pcb():
     ctx.clean_up()
 
 
-def test_pcb_wrong_command():
+def test_pcb_wrong_command(test_dir):
     """ Wrong command line arguments """
-    ctx = context.TestContext('PCB_Wrong_Command', 'good-project')
+    ctx = context.TestContext(test_dir, 'PCB_Wrong_Command', 'good-project')
     cmd = [PROG, 'bogus']
     ctx.run(cmd, WRONG_ARGUMENTS)
     ctx.clean_up()

@@ -22,12 +22,12 @@ from utils import context
 PROG = 'eeschema_do'
 
 
-def test_netlist():
+def test_netlist(test_dir):
     """ 1) Test netlist creation.
         2) Output file already exists. """
     prj = 'good-project'
     net = prj+'.net'
-    ctx = context.TestContextSCH('Netlist', prj)
+    ctx = context.TestContextSCH(test_dir, 'Netlist', prj)
     # Force removing the .net
     ctx.create_dummy_out_file(net)
     cmd = [PROG, 'netlist']

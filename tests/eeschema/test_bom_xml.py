@@ -22,10 +22,10 @@ from utils import context
 PROG = 'eeschema_do'
 
 
-def test_bom_xml():
+def test_bom_xml(test_dir):
     prj = 'good-project'
     bom = prj+'.csv'
-    ctx = context.TestContextSCH('BoM_XML', prj)
+    ctx = context.TestContextSCH(test_dir, 'BoM_XML', prj)
     cmd = [PROG, '-vv', '-r', 'bom_xml']
     ctx.run(cmd)
     ctx.expect_out_file(bom)

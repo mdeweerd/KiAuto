@@ -4,7 +4,6 @@ import tempfile
 import logging
 import subprocess
 import re
-import pytest
 import configparser
 from glob import glob
 from pty import spawn
@@ -44,7 +43,7 @@ def get_config_vars_ini(file):
 class TestContext(object):
     pty_data = None
 
-    def __init__(self, test_name, prj_name):
+    def __init__(self, test_dir, test_name, prj_name):
         ng_ver = os.environ.get('KIAUS_USE_NIGHTLY')
         if ng_ver:
             # Path to the Python module
@@ -87,7 +86,7 @@ class TestContext(object):
         # The actual board file that will be loaded
         self._get_board_name()
         # The actual output dir for this run
-        self._set_up_output_dir(pytest.config.getoption('test_dir'))
+        self._set_up_output_dir(test_dir)
         # stdout and stderr from the run
         self.out = None
         self.err = None
@@ -373,8 +372,8 @@ class TestContext(object):
 
 class TestContextSCH(TestContext):
 
-    def __init__(self, test_name, prj_name, old_sch=False):
-        super().__init__(test_name, prj_name)
+    def __init__(self, test_dir, test_name, prj_name, old_sch=False):
+        super().__init__(test_dir, test_name, prj_name)
         self.mode = MODE_SCH
         if old_sch:
             self.sch_ext = '.sch'

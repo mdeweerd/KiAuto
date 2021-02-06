@@ -29,8 +29,8 @@ DEFAULT = 'printed.pdf'
 CMD_OUT = 'output.txt'
 
 
-def test_print_pcb_good_dwg_1():
-    ctx = context.TestContext('Print_Good_with_Dwg', 'good-project')
+def test_print_pcb_good_dwg_1(test_dir):
+    ctx = context.TestContext(test_dir, 'Print_Good_with_Dwg', 'good-project')
     pdf = 'good_pcb_with_dwg.pdf'
     mtime1 = ctx.get_pro_mtime()
     mtime2 = ctx.get_prl_mtime()
@@ -44,8 +44,8 @@ def test_print_pcb_good_dwg_1():
     ctx.clean_up()
 
 
-def test_print_pcb_good_inner():
-    ctx = context.TestContext('Print_Good_Inner', 'good-project')
+def test_print_pcb_good_inner(test_dir):
+    ctx = context.TestContext(test_dir, 'Print_Good_Inner', 'good-project')
     cmd = [PROG, 'export']
     layers = ['F.Cu', 'F.SilkS', 'GND.Cu', 'Signal1.Cu', 'Inner.3', 'Power.Cu', 'Edge.Cuts']
     ctx.run(cmd, extra=layers)
@@ -54,16 +54,16 @@ def test_print_pcb_good_inner():
     ctx.clean_up()
 
 
-def test_print_pcb_layers():
-    ctx = context.TestContext('Print_Layers', 'good-project')
+def test_print_pcb_layers(test_dir):
+    ctx = context.TestContext(test_dir, 'Print_Layers', 'good-project')
     cmd = [PROG, 'export', '--list']
     ctx.run(cmd)
     ctx.compare_txt(CMD_OUT, 'good_pcb_layers.txt')
     ctx.clean_up()
 
 
-def test_print_pcb_good_dwg_dism():
-    ctx = context.TestContext('Print_Good_with_Dwg_Dism', 'good-project')
+def test_print_pcb_good_dwg_dism(test_dir):
+    ctx = context.TestContext(test_dir, 'Print_Good_with_Dwg_Dism', 'good-project')
     pdf = 'good_pcb_with_dwg.pdf'
     # Create the output to force and overwrite
     with open(ctx.get_out_path(pdf), 'w') as f:
@@ -81,8 +81,8 @@ def test_print_pcb_good_dwg_dism():
     ctx.clean_up()
 
 
-def test_wrong_layer_name_kiplot():
-    ctx = context.TestContext('Wrong_Inner', 'good-project')
+def test_wrong_layer_name_kiplot(test_dir):
+    ctx = context.TestContext(test_dir, 'Wrong_Inner', 'good-project')
     cmd = [PROG, 'export']
     layers = ['F.Cu', 'Inner_1']
     ctx.run(cmd, WRONG_LAYER_NAME, extra=layers)
@@ -91,8 +91,8 @@ def test_wrong_layer_name_kiplot():
     ctx.clean_up()
 
 
-def test_wrong_layer_big():
-    ctx = context.TestContext('Wrong_Inner_Big', 'good-project')
+def test_wrong_layer_big(test_dir):
+    ctx = context.TestContext(test_dir, 'Wrong_Inner_Big', 'good-project')
     cmd = [PROG, 'export']
     layers = ['F.Cu', 'Inner.8']
     ctx.run(cmd, WRONG_LAYER_NAME, extra=layers)
@@ -101,8 +101,8 @@ def test_wrong_layer_big():
     ctx.clean_up()
 
 
-def test_wrong_layer_bogus():
-    ctx = context.TestContext('Wrong_Inner_Name', 'good-project')
+def test_wrong_layer_bogus(test_dir):
+    ctx = context.TestContext(test_dir, 'Wrong_Inner_Name', 'good-project')
     cmd = [PROG, 'export']
     layers = ['F.Cu', 'GND_Cu']
     ctx.run(cmd, WRONG_LAYER_NAME, extra=layers)
@@ -111,9 +111,9 @@ def test_wrong_layer_bogus():
     ctx.clean_up()
 
 
-def test_print_pcb_good_wm():
+def test_print_pcb_good_wm(test_dir):
     """ Here we test the window manager """
-    ctx = context.TestContext('Print_Good_with_WM', 'good-project')
+    ctx = context.TestContext(test_dir, 'Print_Good_with_WM', 'good-project')
     pdf = 'good_pcb_with_dwg.pdf'
     cmd = [PROG, '-ms', 'export', '--output_name', pdf]
     layers = ['F.Cu', 'F.SilkS', 'Dwgs.User', 'Edge.Cuts']
@@ -123,8 +123,8 @@ def test_print_pcb_good_wm():
     ctx.clean_up()
 
 
-def test_print_pcb_refill():
-    ctx = context.TestContext('Print_Refill', 'zone-refill')
+def test_print_pcb_refill(test_dir):
+    ctx = context.TestContext(test_dir, 'Print_Refill', 'zone-refill')
     pdf = 'zone-refill.pdf'
     cmd = [PROG, 'export', '-f', '--output_name', pdf]
     layers = ['F.Cu', 'B.Cu', 'Edge.Cuts']
@@ -134,8 +134,8 @@ def test_print_pcb_refill():
     ctx.clean_up()
 
 
-def test_wrong_scaling():
-    ctx = context.TestContext('wrong_scaling', 'good-project')
+def test_wrong_scaling(test_dir):
+    ctx = context.TestContext(test_dir, 'wrong_scaling', 'good-project')
     cmd = [PROG, 'export', '--scaling', 'A']
     layers = ['F.Cu', 'GND_Cu']
     ctx.run(cmd, WRONG_ARGUMENTS, extra=layers)
@@ -144,8 +144,8 @@ def test_wrong_scaling():
     ctx.clean_up()
 
 
-def test_wrong_pad_style_1():
-    ctx = context.TestContext('wrong_pad_style_1', 'good-project')
+def test_wrong_pad_style_1(test_dir):
+    ctx = context.TestContext(test_dir, 'wrong_pad_style_1', 'good-project')
     cmd = [PROG, 'export', '--pads', 'A']
     layers = ['F.Cu', 'GND_Cu']
     ctx.run(cmd, WRONG_ARGUMENTS, extra=layers)
@@ -154,8 +154,8 @@ def test_wrong_pad_style_1():
     ctx.clean_up()
 
 
-def test_wrong_pad_style_2():
-    ctx = context.TestContext('wrong_pad_style_2', 'good-project')
+def test_wrong_pad_style_2(test_dir):
+    ctx = context.TestContext(test_dir, 'wrong_pad_style_2', 'good-project')
     cmd = [PROG, 'export', '--pads', '3']
     layers = ['F.Cu', 'GND_Cu']
     ctx.run(cmd, WRONG_ARGUMENTS, extra=layers)
@@ -164,8 +164,8 @@ def test_wrong_pad_style_2():
     ctx.clean_up()
 
 
-def test_print_pcb_good_dwg_2():
-    ctx = context.TestContext('print_pcb_good_dwg_2', 'good-project')
+def test_print_pcb_good_dwg_2(test_dir):
+    ctx = context.TestContext(test_dir, 'print_pcb_good_dwg_2', 'good-project')
     pdf = 'good_pcb_sep_bn.pdf'
     cmd = [PROG, 'export', '--mirror', '--scaling', '4', '--pads', '0', '--no-title', '--monochrome', '--separate',
            '--output_name', pdf]

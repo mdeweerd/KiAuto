@@ -23,10 +23,10 @@ from utils import context
 PROG = 'eeschema_do'
 
 
-def test_export_all_pdf():
+def test_export_all_pdf(test_dir):
     prj = 'good-project'
     pdf = prj+'.pdf'
-    ctx = context.TestContextSCH('Export_All_PDF', prj)
+    ctx = context.TestContextSCH(test_dir, 'Export_All_PDF', prj)
     cmd = [PROG, '-vv', '-r', 'export', '--file_format', 'pdf', '--all_pages']
     ctx.run(cmd)
     ctx.expect_out_file(pdf)
@@ -34,10 +34,10 @@ def test_export_all_pdf():
     ctx.clean_up()
 
 
-def test_export_pdf():
+def test_export_pdf(test_dir):
     prj = 'good-project'
     pdf = prj+'.pdf'
-    ctx = context.TestContextSCH('Export_PDF', prj)
+    ctx = context.TestContextSCH(test_dir, 'Export_PDF', prj)
     mtime = ctx.get_pro_mtime()
     cmd = [PROG, '-vv', '-r', 'export', '--file_format', 'pdf']
     ctx.run(cmd)
@@ -49,11 +49,11 @@ def test_export_pdf():
     ctx.clean_up()
 
 
-def test_export_all_svg():
+def test_export_all_svg(test_dir):
     """ 1) Test multiple SVG export.
         2) One of the outputs already exists. """
     prj = 'good-project'
-    ctx = context.TestContextSCH('Export_All_SVG', prj)
+    ctx = context.TestContextSCH(test_dir, 'Export_All_SVG', prj)
     cmd = [PROG, '-vv', '-r', 'export', '--file_format', 'svg', '--all_pages']
     logic = ctx.get_sub_sheet_name('logic', 'svg')
     power = ctx.get_sub_sheet_name('Power', 'svg')
@@ -65,12 +65,12 @@ def test_export_all_svg():
     ctx.clean_up()
 
 
-def test_export_svg():
+def test_export_svg(test_dir):
     """ 1) Test single SVG export.
         2) Output already exists. """
     prj = 'good-project'
     svg = prj+'.svg'
-    ctx = context.TestContextSCH('Export_SVG', prj)
+    ctx = context.TestContextSCH(test_dir, 'Export_SVG', prj)
     ctx.create_dummy_out_file(svg)
     cmd = [PROG, '-vv', '-r', 'export', '--file_format', 'svg']
     ctx.run(cmd)
@@ -80,10 +80,10 @@ def test_export_svg():
     ctx.clean_up()
 
 
-def test_export_ps():
+def test_export_ps(test_dir):
     prj = 'good-project'
     ps = prj+'.ps'
-    ctx = context.TestContextSCH('Export_PS', prj)
+    ctx = context.TestContextSCH(test_dir, 'Export_PS', prj)
     cmd = [PROG, '-vv', '-r', 'export', '--file_format', 'ps']
     ctx.run(cmd)
     ctx.compare_ps(ps)
@@ -92,10 +92,10 @@ def test_export_ps():
     ctx.clean_up()
 
 
-def test_export_all_ps():
+def test_export_all_ps(test_dir):
     prj = 'good-project'
     ps = prj+'.ps'
-    ctx = context.TestContextSCH('Export_All_PS', prj)
+    ctx = context.TestContextSCH(test_dir, 'Export_All_PS', prj)
     cmd = [PROG, '-vv', '-r', 'export', '--file_format', 'ps', '--all_pages']
     ctx.run(cmd)
     ctx.compare_ps(ps)
@@ -104,10 +104,10 @@ def test_export_all_ps():
     ctx.clean_up()
 
 
-def test_export_dxf():
+def test_export_dxf(test_dir):
     prj = 'good-project'
     dxf = prj+'.dxf'
-    ctx = context.TestContextSCH('Export_DXF', prj)
+    ctx = context.TestContextSCH(test_dir, 'Export_DXF', prj)
     cmd = [PROG, '-vv', '-r', 'export', '--file_format', 'dxf']
     ctx.run(cmd)
     ctx.expect_out_file(dxf)
@@ -116,10 +116,10 @@ def test_export_dxf():
     ctx.clean_up()
 
 
-def test_export_all_dxf():
+def test_export_all_dxf(test_dir):
     prj = 'good-project'
     dxf = prj+'.dxf'
-    ctx = context.TestContextSCH('Export_All_DXF', prj)
+    ctx = context.TestContextSCH(test_dir, 'Export_All_DXF', prj)
     cmd = [PROG, '-vv', '-r', 'export', '--file_format', 'dxf', '--all_pages']
     ctx.run(cmd)
     ctx.expect_out_file(dxf)
@@ -128,10 +128,10 @@ def test_export_all_dxf():
     ctx.clean_up()
 
 
-def test_export_hpgl():
+def test_export_hpgl(test_dir):
     prj = 'good-project'
     hpgl = prj+'.plt'
-    ctx = context.TestContextSCH('Export_HPGL', prj)
+    ctx = context.TestContextSCH(test_dir, 'Export_HPGL', prj)
     cmd = [PROG, '-vv', '-r', 'export', '--file_format', 'hpgl']
     ctx.run(cmd)
     ctx.expect_out_file(hpgl)
@@ -140,10 +140,10 @@ def test_export_hpgl():
     ctx.clean_up()
 
 
-def test_export_all_hpgl():
+def test_export_all_hpgl(test_dir):
     prj = 'good-project'
     hpgl = prj+'.plt'
-    ctx = context.TestContextSCH('Export_All_HPGL', prj)
+    ctx = context.TestContextSCH(test_dir, 'Export_All_HPGL', prj)
     cmd = [PROG, 'export', '--file_format', 'hpgl', '--all_pages']
     ctx.run(cmd)
     ctx.expect_out_file(hpgl)

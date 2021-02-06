@@ -28,11 +28,11 @@ PROG = 'eeschema_do'
 BOGUS_SCH = 'bogus.sch'
 
 
-def test_eeschema_config_backup():
+def test_eeschema_config_backup(test_dir):
     """ Here we test the extreme situation that a previous run left a config
         back-up and the user must take action. """
     prj = 'good-project'
-    ctx = context.TestContextSCH('Eeschema_config_bkp', prj)
+    ctx = context.TestContextSCH(test_dir, 'Eeschema_config_bkp', prj)
     # Create a fake back-up
     if not os.path.isdir(ctx.kicad_cfg_dir):
         logging.debug('Creating KiCad config dir')
@@ -50,11 +50,11 @@ def test_eeschema_config_backup():
     ctx.clean_up()
 
 
-def test_kicad_common_config_backup():
+def test_kicad_common_config_backup(test_dir):
     """ Here we test the extreme situation that a previous run left a config
         back-up and the user must take action. """
     prj = 'good-project'
-    ctx = context.TestContextSCH('Eeschema_common_config_bkp', prj)
+    ctx = context.TestContextSCH(test_dir, 'Eeschema_common_config_bkp', prj)
     # Create a fake back-up
     if not os.path.isdir(ctx.kicad_cfg_dir):
         logging.debug('Creating KiCad config dir')
@@ -72,10 +72,10 @@ def test_kicad_common_config_backup():
     ctx.clean_up()
 
 
-def test_sch_not_found():
+def test_sch_not_found(test_dir):
     """ When the provided .sch isn't there """
     prj = 'good-project'
-    ctx = context.TestContextSCH('Schematic_not_found', prj)
+    ctx = context.TestContextSCH(test_dir, 'Schematic_not_found', prj)
     cmd = [PROG, 'run_erc']
     ctx.run(cmd, NO_SCHEMATIC, filename='dummy')
     m = ctx.search_err(r'ERROR:.* does not exist')
@@ -83,10 +83,10 @@ def test_sch_not_found():
     ctx.clean_up()
 
 
-def test_sch_no_extension():
+def test_sch_no_extension(test_dir):
     """ KiCad can't load a schematic file without extension """
     prj = 'good-project'
-    ctx = context.TestContextSCH('SCH_no_extension', prj)
+    ctx = context.TestContextSCH(test_dir, 'SCH_no_extension', prj)
     cmd = [PROG, 'run_erc']
     ctx.run(cmd, WRONG_SCH_NAME, filename='Makefile')
     m = ctx.search_err(r'Input files must use an extension')
@@ -94,9 +94,9 @@ def test_sch_no_extension():
     ctx.clean_up()
 
 
-def test_bogus_sch():
+def test_bogus_sch(test_dir):
     """ A broken SCH file """
-    ctx = context.TestContextSCH('Bogus_SCH', 'good-project')
+    ctx = context.TestContextSCH(test_dir, 'Bogus_SCH', 'good-project')
     # Current KiCad 5.99 (20201125) creates the warning dialog, but doesn't give it focus.
     # So we never know about the problem.
     if ctx.kicad_version < context.KICAD_VERSION_5_99:
@@ -110,9 +110,9 @@ def test_bogus_sch():
     ctx.clean_up()
 
 
-def test_sch_wrong_command():
+def test_sch_wrong_command(test_dir):
     """ Wrong command line arguments """
-    ctx = context.TestContextSCH('SCH_Wrong_Command', 'good-project')
+    ctx = context.TestContextSCH(test_dir, 'SCH_Wrong_Command', 'good-project')
     cmd = [PROG, 'bogus']
     ctx.run(cmd, WRONG_ARGUMENTS)
     ctx.clean_up()

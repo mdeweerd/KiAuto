@@ -30,17 +30,17 @@ OUT_REX = r'(\d+) DRC errors and (\d+) unconnected pads'
 DEFAULT = 'printed.pdf'
 
 
-def test_drc_ok_1():
+def test_drc_ok_1(test_dir):
     """ Also test logger colors on TTYs """
-    ctx = context.TestContext('DRC_Ok', 'good-project')
+    ctx = context.TestContext(test_dir, 'DRC_Ok', 'good-project')
     cmd = [PROG, '-vv', 'run_drc']
     ctx.run(cmd)
     ctx.expect_out_file(REPORT)
     ctx.clean_up()
 
 
-def test_drc_fail():
-    ctx = context.TestContext('DRC_Error', 'fail-project')
+def test_drc_fail(test_dir):
+    ctx = context.TestContext(test_dir, 'DRC_Error', 'fail-project')
     # Here we use -v to cover "info" log level
     cmd = [PROG, '-v', 'run_drc']
     ctx.run(cmd, 254)
@@ -52,8 +52,8 @@ def test_drc_fail():
     ctx.clean_up()
 
 
-def test_drc_unco():
-    ctx = context.TestContext('DRC_Unconnected', 'warning-project')
+def test_drc_unco(test_dir):
+    ctx = context.TestContext(test_dir, 'DRC_Unconnected', 'warning-project')
     cmd = [PROG, 'run_drc', '--output_name', 'drc.txt']
     ctx.run(cmd, 255)
     ctx.expect_out_file('drc.txt')
@@ -64,8 +64,8 @@ def test_drc_unco():
     ctx.clean_up()
 
 
-def test_drc_unco_ok():
-    ctx = context.TestContext('DRC_Unconnected_Ok', 'warning-project')
+def test_drc_unco_ok(test_dir):
+    ctx = context.TestContext(test_dir, 'DRC_Unconnected_Ok', 'warning-project')
     cmd = [PROG, 'run_drc', '--output_name', 'drc.txt', '--ignore_unconnected']
     ctx.run(cmd)
     ctx.expect_out_file('drc.txt')
@@ -76,11 +76,11 @@ def test_drc_unco_ok():
     ctx.clean_up()
 
 
-def test_drc_ok_pcbnew_running():
+def test_drc_ok_pcbnew_running(test_dir):
     """ 1) Test to overwrite the .erc file
         2) Test pcbnew already running
         On KiCad 6 we don't run pcbnew """
-    ctx = context.TestContext('DRC_Ok_pcbnew_running', 'good-project')
+    ctx = context.TestContext(test_dir, 'DRC_Ok_pcbnew_running', 'good-project')
     # Create a report to force and overwrite
     with open(ctx.get_out_path(REPORT), 'w') as f:
         f.write('dummy')
@@ -100,17 +100,17 @@ def test_drc_ok_pcbnew_running():
     ctx.clean_up()
 
 
-def test_drc_save():
+def test_drc_save(test_dir):
     """ Here we test a PCB with outdated zone fills.
         We run the DRC refilling, save it and then print. """
-    ctx = context.TestContext('DRC_Save_1', 'zone-refill')
+    ctx = context.TestContext(test_dir, 'DRC_Save_1', 'zone-refill')
     shutil.copy2(ctx.board_file+'.ok', ctx.board_file)
     cmd = [PROG, 'run_drc', '-s']
     ctx.run(cmd)
     ctx.expect_out_file(REPORT)
     ctx.clean_up()
 
-    ctx = context.TestContext('DRC_Save_2', 'zone-refill')
+    ctx = context.TestContext(test_dir, 'DRC_Save_2', 'zone-refill')
     cmd = [PROG, 'export']
     layers = ['F.Cu', 'B.Cu', 'Edge.Cuts']
     ctx.run(cmd, extra=layers)
@@ -120,10 +120,10 @@ def test_drc_save():
     ctx.clean_up()
 
 
-def test_drc_no_save():
+def test_drc_no_save(test_dir):
     """ Here we test a PCB with outdated zone fills.
         We run the DRC refilling, but we don't save. """
-    ctx = context.TestContext('DRC_No_Save', 'zone-refill')
+    ctx = context.TestContext(test_dir, 'DRC_No_Save', 'zone-refill')
     shutil.copy2(ctx.board_file+'.ok', ctx.board_file)
     size = os.path.getsize(ctx.board_file)
     cmd = [PROG, 'run_drc']
