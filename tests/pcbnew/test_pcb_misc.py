@@ -92,3 +92,11 @@ def test_pcb_wrong_command(test_dir):
     cmd = [PROG, 'bogus']
     ctx.run(cmd, WRONG_ARGUMENTS)
     ctx.clean_up()
+
+
+def test_time_out(test_dir):
+    """ Wrong command line arguments """
+    ctx = context.TestContext(test_dir, 'PCB_Time_Out', 'good-project')
+    cmd = [PROG, '--time_out_scale', '0', 'run_drc']
+    ctx.run(cmd, 1)
+    ctx.clean_up()

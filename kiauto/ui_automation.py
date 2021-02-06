@@ -26,6 +26,12 @@ from xvfbwrapper import Xvfb
 
 from kiauto import log
 logger = log.get_logger(__name__)
+time_out_scale = 1.0
+
+
+def set_time_out_scale(scale):
+    global time_out_scale
+    time_out_scale = scale
 
 
 class PopenContext(Popen):
@@ -67,7 +73,8 @@ class PopenContext(Popen):
 
 
 def wait_xserver():
-    timeout = 10
+    global time_out_scale
+    timeout = 10*time_out_scale
     DELAY = 0.5
     logger.debug('Waiting for virtual X server ...')
     logger.debug('Current DISPLAY is '+os.environ['DISPLAY'])
@@ -91,7 +98,8 @@ def wait_xserver():
 
 
 def wait_wm():
-    timeout = 10
+    global time_out_scale
+    timeout = 10*time_out_scale
     DELAY = 0.5
     logger.debug('Waiting for Window Manager ...')
     if shutil.which('wmctrl'):
@@ -244,6 +252,8 @@ def debug_window(id=None):  # pragma: no cover
 
 
 def wait_focused(id, timeout=10):
+    global time_out_scale
+    timeout *= time_out_scale
     DELAY = 0.5
     logger.debug('Waiting for %s window to get focus...', id)
     for i in range(int(timeout/DELAY)):
@@ -257,6 +267,8 @@ def wait_focused(id, timeout=10):
 
 
 def wait_not_focused(id, timeout=10):
+    global time_out_scale
+    timeout *= time_out_scale
     DELAY = 0.5
     logger.debug('Waiting for %s window to lose focus...', id)
     for i in range(int(timeout/DELAY)):
@@ -274,6 +286,8 @@ def wait_not_focused(id, timeout=10):
 
 
 def wait_for_window(name, window_regex, timeout=10, focus=True, skip_id=0, others=None):
+    global time_out_scale
+    timeout *= time_out_scale
     DELAY = 0.5
     logger.info('Waiting for "%s" ...', name)
     if skip_id:

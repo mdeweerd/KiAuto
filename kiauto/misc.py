@@ -33,6 +33,8 @@ CORRUPTED_PCB = 13
 WAIT_START = 60
 # Name for testing versions
 NIGHTLY = 'nightly'
+# Scale factor for the timeouts
+TIME_OUT_MULT = 1.0
 
 KICAD_VERSION_5_99 = 5099000
 KICAD_SHARE = '/usr/share/kicad/'
@@ -69,6 +71,7 @@ class Config(object):
             self.record = args.record
             self.video_dir = args.output_dir
             self.wait_for_key = args.wait_key
+            self.time_out_scale = args.time_out_scale
             # Others
             if hasattr(args, 'file_format'):
                 self.export_format = args.file_format.lower()
@@ -81,6 +84,7 @@ class Config(object):
             self.record = False
             self.video_dir = None
             self.wait_for_key = False
+            self.time_out_scale = 1.0
         self.colordepth = 24
         self.video_name = None
         # Executable and dirs

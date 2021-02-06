@@ -42,9 +42,9 @@ from kiauto.file_util import (load_filters, wait_for_file_created_by_process, ap
                               check_input_file, memorize_project, restore_project)
 from kiauto.misc import (REC_W, REC_H, __version__, NO_PCB, PCBNEW_CFG_PRESENT, WAIT_START, WRONG_LAYER_NAME,
                          WRONG_PCB_NAME, PCBNEW_ERROR, WRONG_ARGUMENTS, Config, KICAD_VERSION_5_99, USER_HOTKEYS_PRESENT,
-                         CORRUPTED_PCB, __copyright__, __license__)
+                         CORRUPTED_PCB, __copyright__, __license__, TIME_OUT_MULT)
 from kiauto.ui_automation import (PopenContext, xdotool, wait_not_focused, wait_for_window, recorded_xvfb,
-                                  wait_point, text_replace)
+                                  wait_point, text_replace, set_time_out_scale)
 
 TITLE_CONFIRMATION = '^Confirmation$'
 TITLE_ERROR = '^Error$'
@@ -328,7 +328,7 @@ def run_drc_6_0(cfg):
     # To know when KiCad finished we try this:
     # - Currently I can see a way, just wait some time
     #
-    sleep(12)
+    sleep(12*cfg.time_out_scale)
     # Save the DRC
     logger.info('Open the save dialog')
     wait_point(cfg)
@@ -568,6 +568,8 @@ if __name__ == '__main__':
                         __copyright__+' - License: '+__license__)
     parser.add_argument('--wait_key', '-w', help='Wait for key to advance (debug)', action='store_true')
     parser.add_argument('--wait_start', help='Timeout to pcbnew start ['+str(WAIT_START)+']', type=int, default=WAIT_START)
+    parser.add_argument('--time_out_scale', help='Timeout multiplier, affects most timeouts',
+                        type=float, default=TIME_OUT_MULT)
 
     # short commands: flmMopsSt
     export_parser = subparsers.add_parser('export', help='Export PCB layers')
@@ -603,6 +605,7 @@ if __name__ == '__main__':
         exit(WRONG_ARGUMENTS)
 
     cfg = Config(logger, args.kicad_pcb_file, args)
+    set_time_out_scale(cfg.time_out_scale)
     # Empty values by default, we'll fill them for export
     cfg.fill_zones = False
     cfg.layers = []
