@@ -1,4 +1,4 @@
-name: Regression tests
+name: Regression tests (nightly)
 
 on:
   push:
@@ -6,13 +6,13 @@ on:
      - '**.py'
      - 'src/*_do'
      - 'tests/**'
-     - '.github/workflows/pythonapp.yml'
+     - '.github/workflows/pythonapp_nightly.yml'
   pull_request:
     paths:
      - '**.py'
      - 'src/*_do'
      - 'tests/**'
-     - '.github/workflows/pythonapp.yml'
+     - '.github/workflows/pythonapp_nightly.yml'
 
 jobs:
   test_nightly:
