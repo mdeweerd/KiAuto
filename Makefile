@@ -90,6 +90,16 @@ docker_shell:
 	--volume="/home/$(USER):/home/$(USER):rw" \
 	setsoft/kicad_auto_test:latest /bin/bash
 
+docker_shell_ng:
+	docker run  -it --rm -v $(CWD):$(CWD) --workdir="$(CWD)" \
+	-v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$(DISPLAY) \
+	--user $(USER_ID):$(GROUP_ID) \
+	--volume="/etc/group:/etc/group:ro" \
+	--volume="/etc/passwd:/etc/passwd:ro" \
+	--volume="/etc/shadow:/etc/shadow:ro" \
+	--volume="/home/$(USER):/home/$(USER):rw" \
+	setsoft/kicad_auto_test:nightly /bin/bash
+
 docker_deb_shell:
 	docker run  -it --rm -v $(CWD):$(CWD) --workdir="$(CWD)" \
 	-v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$(DISPLAY) \
