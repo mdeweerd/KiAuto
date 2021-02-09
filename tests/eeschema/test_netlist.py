@@ -33,7 +33,7 @@ def test_netlist(test_dir):
     cmd = [PROG, 'netlist']
     ctx.run(cmd)
     ctx.expect_out_file(net)
-    ctx.search_in_file(net, [r'\(node \(ref "?R1"?\) \(pin "?1"?\)( \(pinfunction "1"\))?\)',
-                             r'\(node \(ref "?R1"?\) \(pin "?2"?\)( \(pinfunction "2"\))?\)',
+    ctx.search_in_file(net, [r'\(node \(ref "?R1"?\) \(pin "?1"?\)( \(pinfunction "1"\))?( \(pintype "passive"\))?\)',
+                             r'\(node \(ref "?R1"?\) \(pin "?2"?\)( \(pinfunction "2"\))?( \(pintype "passive"\))?\)',
                              r'\(export \(version "?D"?\)'])
     ctx.clean_up()
