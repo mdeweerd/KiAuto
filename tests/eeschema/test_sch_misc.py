@@ -116,3 +116,11 @@ def test_sch_wrong_command(test_dir):
     cmd = [PROG, 'bogus']
     ctx.run(cmd, WRONG_ARGUMENTS)
     ctx.clean_up()
+
+
+def test_time_out(test_dir):
+    """ ERC time-out """
+    ctx = context.TestContextSCH(test_dir, 'SCH_Time_Out', 'good-project')
+    cmd = [PROG, '--time_out_scale', '0', 'run_erc']
+    ctx.run(cmd, 1)
+    ctx.clean_up()
