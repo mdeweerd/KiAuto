@@ -7,6 +7,7 @@ import os
 import re
 import json
 import configparser
+from contextlib import contextmanager
 from sys import exit, path
 
 # Default W,H for recording
@@ -39,6 +40,17 @@ TIME_OUT_MULT = 1.0
 KICAD_VERSION_5_99 = 5099000
 KICAD_SHARE = '/usr/share/kicad/'
 KICAD_NIGHTLY_SHARE = '/usr/share/kicad-nightly/'
+
+
+@contextmanager
+def hide_stderr():
+    """ Low level stderr supression, used to hide KiCad bugs. """
+    newstderr = os.dup(2)
+    devnull = os.open('/dev/null', os.O_WRONLY)
+    os.dup2(devnull, 2)
+    os.close(devnull)
+    yield
+    os.dup2(newstderr, 2)
 
 
 class Config(object):
@@ -120,8 +132,12 @@ class Config(object):
             if ng_ver:
                 self.kicad_conf_path = self.kicad_conf_path.replace('/kicad/', '/kicadnightly/')
         else:
-            logger.debug('Ignore the next message about creating a wxApp, is a KiCad 5 bug (6989)')
-            self.kicad_conf_path = pcbnew.GetKicadConfigPath()
+            # Bug in KiCad (#6989), prints to stderr:
+            # `../src/common/stdpbase.cpp(62): assert "traits" failed in Get(test_dir): create wxApp before calling this`
+            # Found in KiCad 5.1.8, 5.1.9
+            # So we temporarily supress stderr
+            with hide_stderr():
+                self.kicad_conf_path = pcbnew.GetKicadConfigPath()
         logger.debug('Config path {}'.format(self.kicad_conf_path))
         # First we solve kicad_common because it can redirect to another config dir
         self.conf_kicad = os.path.join(self.kicad_conf_path, 'kicad_common')
