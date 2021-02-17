@@ -11,7 +11,7 @@ Package: kiauto
 Architecture: all
 Multi-Arch: foreign
 Depends: ${misc:Depends}, ${python3:Depends}, python3-xvfbwrapper, python3-psutil, recordmydesktop, xdotool, kicad (>= 5.1.0) | kicad-nightly, xsltproc
-Recommends: fluxbox, wmctrl, x11vnc, ssvnc
+Recommends: fluxbox, wmctrl, x11vnc, ssvnc, procps
 Description: KiCad automation scripts
  Runs KiCad in a virtual environment to automate some tasks.
  You can run the ERC and DRC, print the PCB and schematic,

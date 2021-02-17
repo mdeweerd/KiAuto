@@ -249,6 +249,10 @@ def debug_window(id=None):  # pragma: no cover
                 pass
         if id:
             call(['xprop', '-id', id])
+    if shutil.which('vmstat'):
+        call(['vmstat', '-s'])
+    if shutil.which('uptime'):
+        call(['uptime'])
 
 
 def wait_focused(id, timeout=10):
