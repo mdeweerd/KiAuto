@@ -1,3 +1,10 @@
+kiauto (1.5.7-1) stable; urgency=medium
+
+  * Added call to `vmstat` and `uptime` after time-out.
+  * KiCad bug #6989 message supression.
+
+ -- Salvador E. Tropea <salvador@inti.gob.ar>  Wed, 17 Feb 2021 18:27:48 -0300
+
 kiauto (1.5.6-1) stable; urgency=medium
 
   * Command line option to scale all the time-outs.

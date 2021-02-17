@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.7] - 2021-02-17
+### Added
+- Call to `vmstat` and `uptime` after time-out.
+- KiCad bug #6989 message supression.
+
 ## [1.5.6] - 2021-02-08
 ### Added
 - Command line option to scale all the time-outs.
