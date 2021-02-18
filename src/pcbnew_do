@@ -694,6 +694,7 @@ if __name__ == '__main__':
         # First command to migrate to Python!
         run_drc_python(cfg)
         error_level = process_drc_out(cfg)
+        do_retry = False
     else:
         flog_out, flog_err = get_log_files(output_dir, 'pcbnew')
         for retry in range(3):
