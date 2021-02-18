@@ -81,7 +81,7 @@ def wait_xserver(out_dir):
     logger.debug('Current DISPLAY is '+os.environ['DISPLAY'])
     if shutil.which('setxkbmap'):
         cmd = ['setxkbmap', '-query']
-    elif shutil.which('setxkbmap'):  # pragma: no cover
+    elif shutil.which('xset'):  # pragma: no cover
         cmd = ['xset', 'q']
     else:  # pragma: no cover
         cmd = ['ls']
@@ -91,6 +91,7 @@ def wait_xserver(out_dir):
         flog_out, flog_err = get_log_files(out_dir, cmd[0])
         ret = call(cmd, stdout=flog_out, stderr=flog_err, close_fds=True)
         if not ret:
+            time.sleep(2*time_out_scale)
             return
         logger.debug('   Retry')
         time.sleep(DELAY)
