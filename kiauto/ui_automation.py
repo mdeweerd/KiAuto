@@ -23,6 +23,7 @@ import signal
 from contextlib import contextmanager
 # python3-xvfbwrapper
 from xvfbwrapper import Xvfb
+from kiauto.file_util import get_log_files
 
 from kiauto import log
 logger = log.get_logger(__name__)
@@ -142,12 +143,7 @@ def start_record(do_record, video_dir, video_name):
         cmd = ['recordmydesktop', '--overwrite', '--no-sound', '--no-frame', '--on-the-fly-encoding',
                '-o', video_filename]
         logger.debug('Recording session with: '+str(cmd))
-        if log.get_level() > 2:
-            flog_out = open('recordmydesktop_out.log', 'wt')
-            flog_err = open('recordmydesktop_err.log', 'wt')
-            logger.debug('Redirecting its output to recordmydesktop*.log')
-        else:
-            flog_out = flog_err = DEVNULL
+        flog_out, flog_err = get_log_files(video_dir, cmd[0])
         with PopenContext(cmd, stdout=flog_out, stderr=flog_err, close_fds=True, start_new_session=True) as screencast_proc:
             try:
                 yield

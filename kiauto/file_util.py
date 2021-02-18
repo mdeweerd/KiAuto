@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2020 Salvador E. Tropea
-# Copyright (c) 2020 Instituto Nacional de Tecnologïa Industrial
+# Copyright (c) 2020-2021 Salvador E. Tropea
+# Copyright (c) 2020-2021 Instituto Nacional de Tecnologïa Industrial
 # Copyright (c) 2019 Jesse Vincent (@obra)
 # Copyright (c) 2018-2019 Seppe Stas (@seppestas) (Productize SPRL)
 # Based on ideas by: Scott Bezek (@scottbez1)
@@ -17,6 +17,7 @@ import time
 import re
 import shutil
 import atexit
+from subprocess import DEVNULL
 # python3-psutil
 import psutil
 
@@ -259,3 +260,13 @@ def restore_project(cfg):
     _restore_project(cfg.pro_name, cfg.pro_stat, cfg.pro_content)
     if cfg.prl_ext and cfg.prl_stat:
         _restore_project(cfg.prl_name, cfg.prl_stat, cfg.prl_content)
+
+
+def get_log_files(out_dir, app_name):
+    if log.get_level() > 2:
+        flog_out = open(os.path.join(out_dir, app_name+'_out.log'), 'wt')
+        flog_err = open(os.path.join(out_dir, app_name+'_err.log'), 'wt')
+        logger.debug('Redirecting '+app_name+' output to '+app_name+'*.log')
+    else:
+        flog_out = flog_err = DEVNULL
+    return (flog_out, flog_err)

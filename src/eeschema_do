@@ -39,7 +39,7 @@ logger = log.init()
 
 from kiauto.file_util import (load_filters, wait_for_file_created_by_process, apply_filters, list_errors, list_warnings,
                               check_kicad_config_dir, restore_config, backup_config, check_lib_table, create_user_hotkeys,
-                              check_input_file, memorize_project, restore_project)
+                              check_input_file, memorize_project, restore_project, get_log_files)
 from kiauto.misc import (REC_W, REC_H, __version__, NO_SCHEMATIC, EESCHEMA_CFG_PRESENT, KICAD_CFG_PRESENT,
                          WAIT_START, WRONG_SCH_NAME, EESCHEMA_ERROR, Config, KICAD_VERSION_5_99,
                          USER_HOTKEYS_PRESENT, __copyright__, __license__, TIME_OUT_MULT)
@@ -576,12 +576,7 @@ if __name__ == '__main__':
     #
     cfg.output_file_no_ext = os.path.join(output_dir, os.path.splitext(os.path.basename(cfg.input_file))[0])
     error_level = 0
-    if log.get_level() > 2:
-        flog_out = open('eeschema_out.log', 'wt')
-        flog_err = open('eeschema_err.log', 'wt')
-        logger.debug('Redirecting eeschema output to eeschema*.log')
-    else:
-        flog_out = flog_err = subprocess.DEVNULL
+    flog_out, flog_err = get_log_files(output_dir, 'eeschema')
     with recorded_xvfb(cfg):
         with PopenContext([cfg.eeschema, cfg.input_file], close_fds=True, start_new_session=True,
                           stderr=flog_err, stdout=flog_out) as eeschema_proc:
