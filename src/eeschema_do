@@ -109,7 +109,7 @@ def dismiss_already_running():
 
 
 def wait_eeschema(cfg, time, others=None):
-    return wait_for_window('Main eeschema window', cfg.ee_window_title, time, others=others)
+    return wait_for_window('Main eeschema window', cfg.ee_window_title, time, others=others, popen_obj=cfg.popen_obj)
 
 
 def wait_eeschema_start(cfg):
@@ -123,12 +123,12 @@ def wait_eeschema_start(cfg):
         except RuntimeError:  # pragma: no cover
             logger.debug('Time-out waiting for eeschema, will retry')
             failed_focuse = True
-            pass
         except ValueError as err:
             other = str(err)
             logger.debug('Found "'+other+'" window instead of eeschema')
             failed_focuse = True
-            pass
+        except subprocess.CalledProcessError:
+            logger.debug('Eeschema is no longer running (returned {})'.format(cfg.popen_obj.poll()))
         if not failed_focuse:
             return
         # Failed to find the window
@@ -577,53 +577,61 @@ if __name__ == '__main__':
     cfg.output_file_no_ext = os.path.join(output_dir, os.path.splitext(os.path.basename(cfg.input_file))[0])
     error_level = 0
     flog_out, flog_err = get_log_files(output_dir, 'eeschema')
-    with recorded_xvfb(cfg):
-        logger.debug('Starting '+cfg.eeschema)
-        with PopenContext([cfg.eeschema, cfg.input_file], close_fds=True, start_new_session=True,
-                          stderr=flog_err, stdout=flog_out) as eeschema_proc:
-            # Wait for Eeschema
-            wait_eeschema_start(cfg)
-            cfg.eeschema_pid = eeschema_proc.pid
-            if args.command == 'export':
-                # Export
-                ext = cfg.export_format
-                if ext == 'hpgl':
-                    ext = 'plt'
-                set_output_file(cfg, ext)
-                eeschema_plot_schematic(cfg)
-            elif args.command == 'netlist':
-                # Netlist
-                set_output_file(cfg, 'net')
-                eeschema_netlist_commands(cfg)
-            elif args.command == 'bom_xml':
-                # BoM XML
-                set_output_file(cfg, 'csv')
-                eeschema_bom_xml_commands(cfg)
-            elif args.command == 'run_erc':
-                # Run ERC
-                if args.output_name is None:
-                    set_output_file(cfg, 'erc')
+    for retry in range(2):
+        do_retry = False
+        with recorded_xvfb(cfg):
+            logger.debug('Starting '+cfg.eeschema)
+            with PopenContext([cfg.eeschema, cfg.input_file], close_fds=True, start_new_session=True,
+                              stderr=flog_err, stdout=flog_out) as eeschema_proc:
+                cfg.eeschema_pid = eeschema_proc.pid
+                cfg.popen_obj = eeschema_proc
+                # Wait for Eeschema
+                wait_eeschema_start(cfg)
+                if eeschema_proc.poll() is not None:
+                    do_retry = True
                 else:
-                    cfg.output_file = os.path.abspath(args.output_name[0])
-                    if os.path.exists(cfg.output_file):
-                        logger.debug('Removing old file')
-                        os.remove(cfg.output_file)
-                logger.debug('Report file: '+cfg.output_file)
-                eeschema_run_erc_schematic(cfg)
-                errors, warnings = eeschema_parse_erc(cfg)
-                skip_err, skip_wrn = apply_filters(cfg, 'ERC error/s', 'ERC warning/s')
-                errors = errors-skip_err
-                warnings = warnings-skip_wrn
-                if warnings > 0:
-                    logger.warning(str(warnings)+' ERC warnings detected')
-                    list_warnings(cfg)
-                if errors > 0:
-                    logger.error(str(errors)+' ERC errors detected')
-                    list_errors(cfg)
-                    error_level = -errors
-                else:
-                    logger.info('No errors')
-            eeschema_proc.terminate()
+                    if args.command == 'export':
+                        # Export
+                        ext = cfg.export_format
+                        if ext == 'hpgl':
+                            ext = 'plt'
+                        set_output_file(cfg, ext)
+                        eeschema_plot_schematic(cfg)
+                    elif args.command == 'netlist':
+                        # Netlist
+                        set_output_file(cfg, 'net')
+                        eeschema_netlist_commands(cfg)
+                    elif args.command == 'bom_xml':
+                        # BoM XML
+                        set_output_file(cfg, 'csv')
+                        eeschema_bom_xml_commands(cfg)
+                    elif args.command == 'run_erc':
+                        # Run ERC
+                        if args.output_name is None:
+                            set_output_file(cfg, 'erc')
+                        else:
+                            cfg.output_file = os.path.abspath(args.output_name[0])
+                            if os.path.exists(cfg.output_file):
+                                logger.debug('Removing old file')
+                                os.remove(cfg.output_file)
+                        logger.debug('Report file: '+cfg.output_file)
+                        eeschema_run_erc_schematic(cfg)
+                        errors, warnings = eeschema_parse_erc(cfg)
+                        skip_err, skip_wrn = apply_filters(cfg, 'ERC error/s', 'ERC warning/s')
+                        errors = errors-skip_err
+                        warnings = warnings-skip_wrn
+                        if warnings > 0:
+                            logger.warning(str(warnings)+' ERC warnings detected')
+                            list_warnings(cfg)
+                        if errors > 0:
+                            logger.error(str(errors)+' ERC errors detected')
+                            list_errors(cfg)
+                            error_level = -errors
+                        else:
+                            logger.info('No errors')
+                    eeschema_proc.terminate()
+        if not do_retry:
+            break
     #
     # Exit clean-up
     #

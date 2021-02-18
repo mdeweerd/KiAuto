@@ -23,7 +23,6 @@ import argparse
 import atexit
 import re
 from time import (asctime, localtime, sleep)
-import subprocess
 import gettext
 import json
 import shutil

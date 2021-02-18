@@ -91,7 +91,7 @@ def wait_xserver(out_dir):
         flog_out, flog_err = get_log_files(out_dir, cmd[0])
         ret = call(cmd, stdout=flog_out, stderr=flog_err, close_fds=True)
         if not ret:
-            time.sleep(2*time_out_scale)
+            # time.sleep(2*time_out_scale)
             return
         logger.debug('   Retry')
         time.sleep(DELAY)
@@ -291,7 +291,7 @@ def wait_not_focused(id, timeout=10):
     raise RuntimeError('Timed out waiting for %s window to lose focus' % id)
 
 
-def wait_for_window(name, window_regex, timeout=10, focus=True, skip_id=0, others=None):
+def wait_for_window(name, window_regex, timeout=10, focus=True, skip_id=0, others=None, popen_obj=None):
     global time_out_scale
     timeout *= time_out_scale
     DELAY = 0.5
@@ -318,6 +318,8 @@ def wait_for_window(name, window_regex, timeout=10, focus=True, skip_id=0, other
             else:
                 logger.debug('Skipped')
         except CalledProcessError:
+            if popen_obj and popen_obj.poll() is not None:
+                raise
             pass
         # Check if we have a list of alternative windows
         if others:
@@ -327,6 +329,8 @@ def wait_for_window(name, window_regex, timeout=10, focus=True, skip_id=0, other
                     xdotool(cmd)
                     raise ValueError(other)
                 except CalledProcessError:
+                    if popen_obj and popen_obj.poll() is not None:
+                        raise
                     pass
         time.sleep(DELAY)
     debug_window()  # pragma: no cover
