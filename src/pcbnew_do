@@ -707,11 +707,12 @@ if __name__ == '__main__':
                     wait_pcbew_start(cfg)
                     if pcbnew_proc.poll() is not None:
                         do_retry = True
-                    if args.command == 'export':
-                        print_layers(cfg)
-                    else:  # run_drc
-                        run_drc(cfg)
-                        error_level = process_drc_out(cfg)
+                    else:
+                        if args.command == 'export':
+                            print_layers(cfg)
+                        else:  # run_drc
+                            run_drc(cfg)
+                            error_level = process_drc_out(cfg)
             if not do_retry:
                 break
             logger.error("Pcbnew failed to start try with --time_out_scale")
