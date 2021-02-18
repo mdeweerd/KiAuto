@@ -716,6 +716,8 @@ if __name__ == '__main__':
             if not do_retry:
                 break
             logger.error("Pcbnew failed to start try with --time_out_scale")
+    if do_retry:
+        error_level = PCBNEW_ERROR
     #
     # Exit clean-up
     #
