@@ -99,6 +99,7 @@ class Config(object):
             self.time_out_scale = 1.0
         self.colordepth = 24
         self.video_name = None
+        self.video_dir = self.output_dir = ''
         # Executable and dirs
         self.eeschema = 'eeschema'
         self.pcbnew = 'pcbnew'
