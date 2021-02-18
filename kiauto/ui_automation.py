@@ -91,6 +91,9 @@ def wait_xserver(out_dir):
         flog_out, flog_err = get_log_files(out_dir, cmd[0])
         ret = call(cmd, stdout=flog_out, stderr=flog_err, close_fds=True)
         if not ret:
+            # On GitLab I saw setxkbmap success and recordmydesktop and KiCad failing to connect to X
+            # One possible solution is a wait here.
+            # Another is detecting KiCad exited.
             # time.sleep(2*time_out_scale)
             return
         logger.debug('   Retry')
@@ -320,7 +323,6 @@ def wait_for_window(name, window_regex, timeout=10, focus=True, skip_id=0, other
         except CalledProcessError:
             if popen_obj and popen_obj.poll() is not None:
                 raise
-            pass
         # Check if we have a list of alternative windows
         if others:
             for other in others:
@@ -331,7 +333,6 @@ def wait_for_window(name, window_regex, timeout=10, focus=True, skip_id=0, other
                 except CalledProcessError:
                     if popen_obj and popen_obj.poll() is not None:
                         raise
-                    pass
         time.sleep(DELAY)
     debug_window()  # pragma: no cover
     raise RuntimeError('Timed out waiting for %s window' % name)

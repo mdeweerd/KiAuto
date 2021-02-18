@@ -22,6 +22,7 @@ import os
 import argparse
 import atexit
 import re
+import subprocess
 from time import (asctime, localtime, sleep)
 import gettext
 import json
@@ -128,24 +129,24 @@ def dismiss_error():
     xdotool(['key', 'Return'])
 
 
-def wait_pcbnew(time=10, others=None):
-    return wait_for_window('Main pcbnew window', r'Pcbnew', time, others=others)
+def wait_pcbnew(time=10, others=None, popen_obj=None):
+    return wait_for_window('Main pcbnew window', r'Pcbnew', time, others=others, popen_obj=popen_obj)
 
 
 def wait_pcbew_start(cfg):
     failed_focuse = False
     other = None
     try:
-        wait_pcbnew(args.wait_start, [TITLE_CONFIRMATION, TITLE_WARNING, TITLE_ERROR])
+        wait_pcbnew(args.wait_start, [TITLE_CONFIRMATION, TITLE_WARNING, TITLE_ERROR], cfg.popen_obj)
     except RuntimeError:  # pragma: no cover
         logger.debug('Time-out waiting for pcbnew, will retry')
         failed_focuse = True
-        pass
     except ValueError as err:
         other = str(err)
         logger.debug('Found "'+other+'" window instead of pcbnew')
         failed_focuse = True
-        pass
+    except subprocess.CalledProcessError:
+        logger.debug('Pcbnew is no longer running (returned {})'.format(cfg.popen_obj.poll()))
     if failed_focuse:
         wait_point(cfg)
         if other == TITLE_ERROR:
@@ -695,17 +696,24 @@ if __name__ == '__main__':
         error_level = process_drc_out(cfg)
     else:
         flog_out, flog_err = get_log_files(output_dir, 'pcbnew')
-        with recorded_xvfb(cfg):
-            logger.debug('Starting '+cfg.pcbnew)
-            with PopenContext([cfg.pcbnew, cfg.input_file], stderr=flog_err, close_fds=True,
-                              stdout=flog_out, start_new_session=True) as pcbnew_proc:
-                cfg.pcbnew_pid = pcbnew_proc.pid
-                wait_pcbew_start(cfg)
-                if args.command == 'export':
-                    print_layers(cfg)
-                else:  # run_drc
-                    run_drc(cfg)
-                    error_level = process_drc_out(cfg)
+        for retry in range(2):
+            do_retry = False
+            with recorded_xvfb(cfg):
+                logger.debug('Starting '+cfg.pcbnew)
+                with PopenContext([cfg.pcbnew, cfg.input_file], stderr=flog_err, close_fds=True,
+                                  stdout=flog_out, start_new_session=True) as pcbnew_proc:
+                    cfg.pcbnew_pid = pcbnew_proc.pid
+                    cfg.popen_obj = pcbnew_proc
+                    wait_pcbew_start(cfg)
+                    if pcbnew_proc.poll() is not None:
+                        do_retry = True
+                    if args.command == 'export':
+                        print_layers(cfg)
+                    else:  # run_drc
+                        run_drc(cfg)
+                        error_level = process_drc_out(cfg)
+            if not do_retry:
+                break
     #
     # Exit clean-up
     #
