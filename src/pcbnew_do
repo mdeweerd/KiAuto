@@ -39,7 +39,7 @@ logger = log.init()
 
 from kiauto.file_util import (load_filters, wait_for_file_created_by_process, apply_filters, list_errors, list_warnings,
                               check_kicad_config_dir, restore_config, backup_config, check_lib_table, create_user_hotkeys,
-                              check_input_file, memorize_project, restore_project)
+                              check_input_file, memorize_project, restore_project, get_log_files)
 from kiauto.misc import (REC_W, REC_H, __version__, NO_PCB, PCBNEW_CFG_PRESENT, WAIT_START, WRONG_LAYER_NAME,
                          WRONG_PCB_NAME, PCBNEW_ERROR, WRONG_ARGUMENTS, Config, KICAD_VERSION_5_99, USER_HOTKEYS_PRESENT,
                          CORRUPTED_PCB, __copyright__, __license__, TIME_OUT_MULT)
@@ -694,9 +694,10 @@ if __name__ == '__main__':
         run_drc_python(cfg)
         error_level = process_drc_out(cfg)
     else:
+        flog_out, flog_err = get_log_files(output_dir, 'pcbnew')
         with recorded_xvfb(cfg):
-            with PopenContext([cfg.pcbnew, cfg.input_file], stderr=subprocess.DEVNULL, close_fds=True,
-                              start_new_session=True) as pcbnew_proc:
+            with PopenContext([cfg.pcbnew, cfg.input_file], stderr=flog_err, close_fds=True,
+                              stdout=flog_out, start_new_session=True) as pcbnew_proc:
                 cfg.pcbnew_pid = pcbnew_proc.pid
                 wait_pcbew_start(cfg)
                 if args.command == 'export':
