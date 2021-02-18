@@ -94,7 +94,7 @@ def wait_xserver(out_dir, num_try):
             # On GitLab I saw setxkbmap success and recordmydesktop and KiCad failing to connect to X
             # One possible solution is a wait here.
             # Another is detecting KiCad exited.
-            time.sleep(2*num_try*time_out_scale)
+            time.sleep(0.5*(num_try+1)*(num_try+1)*time_out_scale)
             return
         logger.debug('   Retry')
         time.sleep(DELAY)

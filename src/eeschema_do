@@ -577,7 +577,7 @@ if __name__ == '__main__':
     cfg.output_file_no_ext = os.path.join(output_dir, os.path.splitext(os.path.basename(cfg.input_file))[0])
     error_level = 0
     flog_out, flog_err = get_log_files(output_dir, 'eeschema')
-    for retry in range(2):
+    for retry in range(3):
         do_retry = False
         with recorded_xvfb(cfg, retry):
             logger.debug('Starting '+cfg.eeschema)
@@ -632,8 +632,9 @@ if __name__ == '__main__':
                     eeschema_proc.terminate()
         if not do_retry:
             break
-        logger.error("Eeschema failed to start try with --time_out_scale")
+        logger.warning("Eeschema failed to start retrying ...")
     if do_retry:
+        logger.error("Eeschema failed to start try with --time_out_scale")
         error_level = EESCHEMA_ERROR
     #
     # Exit clean-up

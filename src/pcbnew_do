@@ -696,7 +696,7 @@ if __name__ == '__main__':
         error_level = process_drc_out(cfg)
     else:
         flog_out, flog_err = get_log_files(output_dir, 'pcbnew')
-        for retry in range(2):
+        for retry in range(3):
             do_retry = False
             with recorded_xvfb(cfg, retry):
                 logger.debug('Starting '+cfg.pcbnew)
@@ -715,8 +715,9 @@ if __name__ == '__main__':
                             error_level = process_drc_out(cfg)
             if not do_retry:
                 break
-            logger.error("Pcbnew failed to start try with --time_out_scale")
+            logger.warning("Pcbnew failed to start retrying ...")
     if do_retry:
+        logger.error("Pcbnew failed to start try with --time_out_scale")
         error_level = PCBNEW_ERROR
     #
     # Exit clean-up
