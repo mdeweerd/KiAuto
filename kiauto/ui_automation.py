@@ -73,7 +73,7 @@ class PopenContext(Popen):
             self.wait(10)
 
 
-def wait_xserver(out_dir):
+def wait_xserver(out_dir, num_try):
     global time_out_scale
     timeout = 10*time_out_scale
     DELAY = 0.5
@@ -94,7 +94,7 @@ def wait_xserver(out_dir):
             # On GitLab I saw setxkbmap success and recordmydesktop and KiCad failing to connect to X
             # One possible solution is a wait here.
             # Another is detecting KiCad exited.
-            # time.sleep(2*time_out_scale)
+            time.sleep(2*num_try*time_out_scale)
             return
         logger.debug('   Retry')
         time.sleep(DELAY)
@@ -180,14 +180,14 @@ def start_x11vnc(do_it, old_display):
 
 
 @contextmanager
-def recorded_xvfb(cfg):
+def recorded_xvfb(cfg, num_try=0):
     try:
         old_display = os.environ['DISPLAY']
     except KeyError:
         old_display = None
         pass
     with Xvfb(width=cfg.rec_width, height=cfg.rec_height, colordepth=cfg.colordepth):
-        wait_xserver(cfg.output_dir)
+        wait_xserver(cfg.output_dir, num_try)
         with start_x11vnc(cfg.start_x11vnc, old_display):
             with start_wm(cfg.use_wm):
                 with start_record(cfg.record, cfg.video_dir, cfg.video_name):

@@ -579,7 +579,7 @@ if __name__ == '__main__':
     flog_out, flog_err = get_log_files(output_dir, 'eeschema')
     for retry in range(2):
         do_retry = False
-        with recorded_xvfb(cfg):
+        with recorded_xvfb(cfg, retry):
             logger.debug('Starting '+cfg.eeschema)
             with PopenContext([cfg.eeschema, cfg.input_file], close_fds=True, start_new_session=True,
                               stderr=flog_err, stdout=flog_out) as eeschema_proc:
@@ -632,6 +632,7 @@ if __name__ == '__main__':
                     eeschema_proc.terminate()
         if not do_retry:
             break
+        logger.error("Eeschema failed to start try with --time_out_scale")
     #
     # Exit clean-up
     #

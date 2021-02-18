@@ -698,7 +698,7 @@ if __name__ == '__main__':
         flog_out, flog_err = get_log_files(output_dir, 'pcbnew')
         for retry in range(2):
             do_retry = False
-            with recorded_xvfb(cfg):
+            with recorded_xvfb(cfg, retry):
                 logger.debug('Starting '+cfg.pcbnew)
                 with PopenContext([cfg.pcbnew, cfg.input_file], stderr=flog_err, close_fds=True,
                                   stdout=flog_out, start_new_session=True) as pcbnew_proc:
@@ -714,6 +714,7 @@ if __name__ == '__main__':
                         error_level = process_drc_out(cfg)
             if not do_retry:
                 break
+            logger.error("Pcbnew failed to start try with --time_out_scale")
     #
     # Exit clean-up
     #
