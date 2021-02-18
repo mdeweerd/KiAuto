@@ -576,9 +576,15 @@ if __name__ == '__main__':
     #
     cfg.output_file_no_ext = os.path.join(output_dir, os.path.splitext(os.path.basename(cfg.input_file))[0])
     error_level = 0
+    if log.get_level() > 2:
+        flog_out = open('eeschema_out.log', 'wt')
+        flog_err = open('eeschema_err.log', 'wt')
+        logger.debug('Redirecting eeschema output to eeschema*.log')
+    else:
+        flog_out = flog_err = subprocess.DEVNULL
     with recorded_xvfb(cfg):
         with PopenContext([cfg.eeschema, cfg.input_file], close_fds=True, start_new_session=True,
-                          stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL) as eeschema_proc:
+                          stderr=flog_err, stdout=flog_out) as eeschema_proc:
             # Wait for Eeschema
             wait_eeschema_start(cfg)
             cfg.eeschema_pid = eeschema_proc.pid

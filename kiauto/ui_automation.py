@@ -142,7 +142,13 @@ def start_record(do_record, video_dir, video_name):
         cmd = ['recordmydesktop', '--overwrite', '--no-sound', '--no-frame', '--on-the-fly-encoding',
                '-o', video_filename]
         logger.debug('Recording session with: '+str(cmd))
-        with PopenContext(cmd, stdout=DEVNULL, stderr=DEVNULL, close_fds=True, start_new_session=True) as screencast_proc:
+        if log.get_level() > 2:
+            flog_out = open('recordmydesktop_out.log', 'wt')
+            flog_err = open('recordmydesktop_err.log', 'wt')
+            logger.debug('Redirecting its output to recordmydesktop*.log')
+        else:
+            flog_out = flog_err = DEVNULL
+        with PopenContext(cmd, stdout=flog_out, stderr=flog_err, close_fds=True, start_new_session=True) as screencast_proc:
             try:
                 yield
             finally:
