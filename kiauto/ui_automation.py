@@ -73,7 +73,7 @@ class PopenContext(Popen):
             self.wait(10)
 
 
-def wait_xserver():
+def wait_xserver(out_dir):
     global time_out_scale
     timeout = 10*time_out_scale
     DELAY = 0.5
@@ -87,10 +87,9 @@ def wait_xserver():
         cmd = ['ls']
         logger.warning('No setxkbmap nor xset available, unable to verify if X is running')
     for i in range(int(timeout/DELAY)):
-        with open(os.devnull, 'w') as fnull:
-            logger.debug('Checking using '+str(cmd))
-            ret = call(cmd, stdout=fnull, stderr=STDOUT, close_fds=True)
-            # ret = call(['xset', 'q'])
+        logger.debug('Checking using '+str(cmd))
+        flog_out, flog_err = get_log_files(out_dir, cmd[0])
+        ret = call(cmd, stdout=flog_out, stderr=flog_err, close_fds=True)
         if not ret:
             return
         logger.debug('   Retry')
@@ -184,7 +183,7 @@ def recorded_xvfb(cfg):
         old_display = None
         pass
     with Xvfb(width=cfg.rec_width, height=cfg.rec_height, colordepth=cfg.colordepth):
-        wait_xserver()
+        wait_xserver(cfg.output_dir)
         with start_x11vnc(cfg.start_x11vnc, old_display):
             with start_wm(cfg.use_wm):
                 with start_record(cfg.record, cfg.video_dir, cfg.video_name):

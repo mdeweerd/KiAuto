@@ -677,6 +677,7 @@ if __name__ == '__main__':
     check_lib_table(cfg.user_fp_lib_table, cfg.sys_fp_lib_table)
     # Create output dir, compute full name for output file and remove it
     output_dir = os.path.abspath(args.output_dir)
+    cfg.video_dir = cfg.output_dir = output_dir
     os.makedirs(output_dir, exist_ok=True)
     # Remove the output file
     output_file = os.path.join(output_dir, args.output_name[0])
@@ -696,6 +697,7 @@ if __name__ == '__main__':
     else:
         flog_out, flog_err = get_log_files(output_dir, 'pcbnew')
         with recorded_xvfb(cfg):
+            logger.debug('Starting '+cfg.pcbnew)
             with PopenContext([cfg.pcbnew, cfg.input_file], stderr=flog_err, close_fds=True,
                               stdout=flog_out, start_new_session=True) as pcbnew_proc:
                 cfg.pcbnew_pid = pcbnew_proc.pid
