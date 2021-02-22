@@ -28,6 +28,7 @@ The automation is carried out emulating the user interaction.
   * [Refilling copper zones](#refilling-copper-zones)
   * [Common options](#common-options)
   * [Ignoring warnings and errors from ERC or DRC](#ignoring-warnings-and-errors-from-erc-or-drc)
+  * [Running on GitLab CI](#running-on-gitlab-ci)
 * [History](#history)
 
 ## Introduction
@@ -254,6 +255,23 @@ pcbnew_do run_drc -f FILTER_FILE YOUR_PCB.kicad_pcb DESTINATION/
 ```
 
 Note that when using KiCad 6 the errors are strings enclosed by brackets, use only the text, not the brackets.
+
+### Running on GitLab CI
+
+If you want to use KiAuto in GitLab CI servers I'll recommend always using the `-r` option.
+
+The scripts runs very well locally and using GitHub CI servers.
+It also worked well on april 25 2020 on GitLab CI.
+Tests on august 25 2020 on GitLab CI started to fail.
+The v1.5.8 implements a workaround that is working on february 22 2021, but you must enable recording.
+
+In case you are interested the misterious problem is related with the use Xvfb.
+After starting Xvfb process we start polling it to ensure the server is up and running.
+We use the `setxkbmap -query` command to know if Xvfb finished its start-up and is working.
+After we can successfully run `setxkbmap -query` we assume Xvfb is fully functional.
+For some reason this isn't true on GitLab CI servers, if we don't wait some time after the test the X server doesn't respond.
+What is even more misterious is that we must run `recordmydesktop` or KiCad will fail to initialize GTK+.
+I don't have any idea of why, but it works.
 
 ## History
 
