@@ -78,7 +78,10 @@ def wait_xserver(out_dir, num_try):
     timeout = 10*time_out_scale
     DELAY = 0.5
     logger.debug('Waiting for virtual X server ...')
-    logger.debug('Current DISPLAY is '+os.environ['DISPLAY'])
+    try:
+        logger.debug('Current DISPLAY is '+os.environ['DISPLAY'])
+    except KeyError:
+        logger.error('Missing DISPLAY on wait_xserver!')
     if shutil.which('setxkbmap'):
         cmd = ['setxkbmap', '-query']
     elif shutil.which('xset'):  # pragma: no cover
