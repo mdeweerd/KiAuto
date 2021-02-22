@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.8] - 2021-02-22
+### Added
+- Verbosity level 3 enables logs for: KiCad, check for Xvfb and
+  recordmydesktop.
+- GitLab CI workaround:
+  - Retries when we detect KiCad prematurely dies (before creating a
+    window).
+  - Delay after detecting Xvfb is running (increased exponentially on
+    retries).
+
 ## [1.5.7] - 2021-02-17
 ### Added
 - Call to `vmstat` and `uptime` after time-out.
