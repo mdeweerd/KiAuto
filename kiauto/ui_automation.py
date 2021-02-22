@@ -189,7 +189,6 @@ def recorded_xvfb(cfg, num_try=0):
         old_display = os.environ['DISPLAY']
     except KeyError:
         old_display = None
-        pass
     with Xvfb(width=cfg.rec_width, height=cfg.rec_height, colordepth=cfg.colordepth):
         wait_xserver(cfg.output_dir, num_try)
         with start_x11vnc(cfg.start_x11vnc, old_display):

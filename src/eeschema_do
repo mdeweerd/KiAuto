@@ -633,6 +633,8 @@ if __name__ == '__main__':
         if not do_retry:
             break
         logger.warning("Eeschema failed to start retrying ...")
+        # DEBUG: check if the X server still there
+        wait_xserver(cfg.output_dir, 0)
     if do_retry:
         logger.error("Eeschema failed to start try with --time_out_scale")
         error_level = EESCHEMA_ERROR
