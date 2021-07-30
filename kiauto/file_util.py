@@ -24,13 +24,20 @@ import psutil
 from kiauto.misc import (WRONG_ARGUMENTS, KICAD_VERSION_5_99)
 from kiauto import log
 logger = log.get_logger(__name__)
+time_out_scale = 1.0
 
 
-def wait_for_file_created_by_process(pid, file, timeout=15):
+def set_time_out_scale(scale):
+    global time_out_scale
+    time_out_scale = scale
+
+
+def wait_for_file_created_by_process(pid, file):
+    global time_out_scale
+    timeout = 15*time_out_scale
     process = psutil.Process(pid)
-
     DELAY = 0.2
-    logger.debug('Waiting for file %s (pid %d)', file, pid)
+    logger.debug('Waiting for file %s (pid %d) (timeout: %f)', file, pid, timeout)
     for i in range(int(timeout/DELAY)):
         kicad_died = False
         try:

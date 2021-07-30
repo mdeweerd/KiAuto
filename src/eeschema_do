@@ -40,6 +40,7 @@ logger = log.init()
 from kiauto.file_util import (load_filters, wait_for_file_created_by_process, apply_filters, list_errors, list_warnings,
                               check_kicad_config_dir, restore_config, backup_config, check_lib_table, create_user_hotkeys,
                               check_input_file, memorize_project, restore_project, get_log_files)
+from kiauto.file_util import set_time_out_scale as set_time_out_scale_f
 from kiauto.misc import (REC_W, REC_H, __version__, NO_SCHEMATIC, EESCHEMA_CFG_PRESENT, KICAD_CFG_PRESENT,
                          WAIT_START, WRONG_SCH_NAME, EESCHEMA_ERROR, Config, KICAD_VERSION_5_99,
                          USER_HOTKEYS_PRESENT, __copyright__, __license__, TIME_OUT_MULT)
@@ -533,6 +534,7 @@ if __name__ == '__main__':
 
     cfg = Config(logger, args.schematic, args)
     set_time_out_scale(cfg.time_out_scale)
+    set_time_out_scale_f(cfg.time_out_scale)
     cfg.video_name = args.command+'_eeschema_screencast.ogv'
     cfg.all_pages = getattr(args, 'all_pages', False)
     cfg.warnings_as_errors = getattr(args, 'warnings_as_errors', False)
