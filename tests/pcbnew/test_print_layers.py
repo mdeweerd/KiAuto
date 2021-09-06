@@ -176,3 +176,18 @@ def test_print_pcb_good_dwg_2(test_dir):
         assert ctx.search_err(r"KiCad 5 doesn't support setting mirror")
     ctx.compare_pdf(pdf)
     ctx.clean_up()
+
+
+def test_print_pcb_good_dwg_3(test_dir):
+    # Fit page
+    ctx = context.TestContext(test_dir, 'print_pcb_good_dwg_3', 'good-project')
+    pdf = 'good_pcb_sep_bn_fit.pdf'
+    cmd = [PROG, 'export', '--mirror', '--scaling', '0', '--pads', '0', '--no-title', '--monochrome', '--separate',
+           '--output_name', pdf]
+    layers = ['F.Cu', 'F.SilkS', 'Dwgs.User', 'Edge.Cuts']
+    ctx.run(cmd, extra=layers)
+    ctx.expect_out_file(pdf)
+    if ctx.kicad_version < context.KICAD_VERSION_5_99:
+        assert ctx.search_err(r"KiCad 5 doesn't support setting mirror")
+    ctx.compare_pdf(pdf)
+    ctx.clean_up()

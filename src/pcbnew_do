@@ -511,12 +511,7 @@ def create_pcbnew_config(cfg):
             # Only one file
             text_file.write('PrintSinglePage=%d\n' % (not cfg.separate))
             # Scaling
-            if int(cfg.scaling) == 1:
-                text_file.write('PrintScale=0\n')
-            elif cfg.scaling:
-                text_file.write('PrintScale=%3.1f\n' % (cfg.scaling))
-            else:
-                text_file.write('PrintScale=1\n')
+            text_file.write('PrintScale=%3.1f\n' % (cfg.scaling))
             # List all posible layers, indicating which ones are requested
             for x in range(0, 50):
                 text_file.write('PlotLayer_%d=%d\n' % (x, int(x in used_layers)))
