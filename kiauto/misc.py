@@ -120,6 +120,12 @@ class Config(object):
                          " Do you need to add it to PYTHONPATH?")
             exit(NO_PCBNEW_MODULE)
         kicad_version = pcbnew.GetBuildVersion()
+        try:
+            # Debian sid may 2021 mess:
+            really_index = kicad_version.index('really')
+            kicad_version = kicad_version[really_index+6:]
+        except ValueError:
+            pass
         m = re.match(r'(\d+)\.(\d+)\.(\d+)', kicad_version)
         self.kicad_version_major = int(m.group(1))
         self.kicad_version_minor = int(m.group(2))
