@@ -58,7 +58,7 @@ A docker image containg the scripts and other tools can be found at [DockerHub](
 
 If you are installing from a Debian package you don't need to worry about dependencies, otherwise you need to install:
 
-- [**KiCad**](http://kicad-pcb.org/) 5.1.x
+- [**KiCad**](http://kicad.org/) 5.1.x
 - [**xdotool**](https://github.com/jordansissel/xdotool)
 - [**xsltproc**](http://xmlsoft.org/xslt/) (usually installed as a KiCad dependency). Only needed for BoMs.
 
