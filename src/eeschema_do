@@ -43,7 +43,7 @@ from kiauto.file_util import (load_filters, wait_for_file_created_by_process, ap
 from kiauto.file_util import set_time_out_scale as set_time_out_scale_f
 from kiauto.misc import (REC_W, REC_H, __version__, NO_SCHEMATIC, EESCHEMA_CFG_PRESENT, KICAD_CFG_PRESENT,
                          WAIT_START, WRONG_SCH_NAME, EESCHEMA_ERROR, Config, KICAD_VERSION_5_99,
-                         USER_HOTKEYS_PRESENT, __copyright__, __license__, TIME_OUT_MULT)
+                         USER_HOTKEYS_PRESENT, __copyright__, __license__, TIME_OUT_MULT, get_en_locale)
 from kiauto.ui_automation import (PopenContext, xdotool, wait_for_window, wait_not_focused, recorded_xvfb,
                                   wait_point, text_replace, set_time_out_scale, wait_xserver)
 
@@ -554,7 +554,7 @@ if __name__ == '__main__':
     # Configure KiCad in a deterministic way
     #
     # Force english + UTF-8
-    os.environ['LANG'] = 'C.UTF-8'
+    os.environ['LANG'] = get_en_locale(logger)
     # Ensure we have a config dir
     check_kicad_config_dir(cfg)
     # Back-up the current eeschema configuration

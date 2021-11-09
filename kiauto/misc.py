@@ -9,6 +9,7 @@ import json
 import configparser
 from contextlib import contextmanager
 from sys import exit, path
+from subprocess import check_output, DEVNULL
 
 # Default W,H for recording
 REC_W = 1366
@@ -30,6 +31,7 @@ EESCHEMA_ERROR = 10
 NO_PCBNEW_MODULE = 11
 USER_HOTKEYS_PRESENT = 12
 CORRUPTED_PCB = 13
+NO_EN_LOCALE = 14
 # Wait 40 s to pcbnew/eeschema window to be present
 WAIT_START = 60
 # Name for testing versions
@@ -240,6 +242,27 @@ class Config(object):
         if 'EnvironmentVariables' in config:
             return config['EnvironmentVariables']
         return None
+
+
+def get_en_locale(logger):
+    ''' Looks for a usable locale with english as language '''
+    try:
+        res = check_output(['locale', '-a'], stderr=DEVNULL).decode('utf8')
+    except FileNotFoundError:
+        logger.warning("The `locale` command isn't installed. Guessing `C.UTF-8` is supported")
+        res = 'C.UTF-8'
+    found = re.search(r'en(.*)UTF-?8', res, re.I)
+    if found:
+        res = found.group(0)
+    else:
+        found = re.search(r'C\.UTF-?8', res, re.I)
+        if found:
+            res = found.group(0)
+        else:
+            logger.error("No suitable english locale found. Please add `en_US.utf8` to your system")
+            exit(NO_EN_LOCALE)
+    logger.debug('English locale: '+res)
+    return res
 
 
 __author__ = 'Salvador E. Tropea'
