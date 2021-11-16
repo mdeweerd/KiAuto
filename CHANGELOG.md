@@ -5,8 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.5.9] - 2021-11-16
+### Changed
+- Now the time-out scale also affects the time we wait for a file creation.
+
 ### Fixed
 - pcbnew_do export scaling for the "fit page" case.
+- Locale problems for some Linux distros (i.e. Arch)
+- Problems with wrong KiCad version in unstable Debian.
 
 ## [1.5.8] - 2021-02-22
 ### Added
