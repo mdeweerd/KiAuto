@@ -564,6 +564,8 @@ def memorize_pcb(cfg):
 
 
 def write_color(out, name, color, post=''):
+    if color is None:
+        return
     if post:
         post = '_'+post
     name += 'Color_'
