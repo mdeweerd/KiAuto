@@ -424,6 +424,11 @@ def capture_3d_view(cfg):
     wait_point(cfg)
     wait_3d_ready()
 
+    # Switch to orthographic
+    if cfg.orthographic:
+        # Can easily break, no persistence, no option, no shortcut ... KiCad's way
+        xdotool(['mousemove', '711', '44', 'click', '1', 'mousemove', 'restore'])
+
     # Apply the view axis
     if cfg.view != 'z':
         xdotool(['key', cfg.view])
@@ -747,7 +752,7 @@ if __name__ == '__main__':
     drc_parser.add_argument('kicad_pcb_file', help='KiCad PCB file')
     drc_parser.add_argument('output_dir', help='Output directory')
 
-    # short commands: bcBorSTvVwxyz
+    # short commands: bcBoOrSTvVwxyz
     v3d_parser = subparsers.add_parser('3d_view', help='Capture the 3D view')
     v3d_parser.add_argument('--bg_color_1', '-b', nargs=1, help='Background color 1', default=['#66667F'])
     v3d_parser.add_argument('--bg_color_2', '-B', nargs=1, help='Background color 2', default=['#CCCCE5'])
@@ -758,6 +763,7 @@ if __name__ == '__main__':
     v3d_parser.add_argument('--no_smd', '-S', help='Do not include surface mount components', action='store_true')
     v3d_parser.add_argument('--no_tht', '-T', help='Do not include through-hole components', action='store_true')
     v3d_parser.add_argument('--virtual', '-V', help='Include virtual components', action='store_true')
+    v3d_parser.add_argument('--orthographic', '-O', help='Enable the orthographic projection', action='store_true')
     v3d_parser.add_argument('--output_name', '-o', nargs=1, help='Name of the output file (PNG)', default=['capture.png'])
     v3d_parser.add_argument('--ray_tracing', '-r', help='Enable the realistic render', action='store_true')
     v3d_parser.add_argument('--silk_color', nargs=1, help='Silk color', default=['#E5E5E5'])
@@ -850,6 +856,7 @@ if __name__ == '__main__':
         cfg.silk_color = parse_color(args.silk_color)
         cfg.sm_color = parse_color(args.sm_color)
         cfg.sp_color = parse_color(args.sp_color)
+        cfg.orthographic = args.orthographic
     else:
         cfg.no_tht = False
         cfg.no_smd = False
