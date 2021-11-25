@@ -27,7 +27,7 @@ def test_export_all_pdf(test_dir):
     prj = 'good-project'
     pdf = prj+'.pdf'
     ctx = context.TestContextSCH(test_dir, 'Export_All_PDF', prj)
-    cmd = [PROG, '-vv', '-r', 'export', '--file_format', 'pdf', '--all_pages', '-m', '-t']
+    cmd = [PROG, '-vv', '-r', 'export', '--file_format', 'pdf', '--all_pages']
     ctx.run(cmd)
     ctx.expect_out_file(pdf)
     ctx.compare_pdf(pdf, 'good_sch_all.pdf')
