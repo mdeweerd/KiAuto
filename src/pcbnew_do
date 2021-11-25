@@ -203,7 +203,7 @@ def open_print_dialog(cfg, print_dialog_keys, id_pcbnew):
     xdotool(['key']+print_dialog_keys)
     retry = False
     try:
-        id = wait_for_window('Print dialog', 'Print', skip_id=id_pcbnew)
+        id = wait_for_window('Print dialog', '^Print', skip_id=id_pcbnew)
     except RuntimeError:  # pragma: no cover
         # Perhaps the fill took too muchm try again
         retry = True
@@ -213,7 +213,7 @@ def open_print_dialog(cfg, print_dialog_keys, id_pcbnew):
         logger.info('Open File->Print (retrying)')
         wait_point(cfg)
         xdotool(['key']+print_dialog_keys)
-        id = wait_for_window('Print dialog', 'Print', skip_id=id_pcbnew)
+        id = wait_for_window('Print dialog', '^Print', skip_id=id_pcbnew)
     if len(id) == 1:
         # Only 1 window matched, the print dialog
         return id[0]
@@ -245,7 +245,7 @@ def print_layers(cfg, id_pcbnew):
         xdotool(['key', 'b'])
         # Wait for complation
         sleep(1)
-        id_pcbnew = wait_pcbnew()
+        id_pcbnew = wait_pcbnew()[0]
     id_print_dialog = open_print_dialog(cfg, print_dialog_keys, id_pcbnew)
     # Open the gtk print dialog
     wait_point(cfg)
