@@ -148,6 +148,7 @@ def wait_pcbew_start(cfg):
         failed_focuse = True
     except subprocess.CalledProcessError:
         logger.debug('Pcbnew is no longer running (returned {})'.format(cfg.popen_obj.poll()))
+        id = [0]
     if failed_focuse:
         wait_point(cfg)
         if other == TITLE_ERROR:
