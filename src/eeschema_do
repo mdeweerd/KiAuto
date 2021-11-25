@@ -452,9 +452,12 @@ def create_eeschema_config(cfg):
             eeconf['window'] = {"size_x": cfg.rec_width, "size_y": cfg.rec_height}
             text_file.write(json.dumps(eeconf))
             logger.debug(json.dumps(eeconf))
+            # TODO: Implement PlotModeColor & PlotFrameRef
         else:
             text_file.write('RescueNeverShow=1\n')
             text_file.write('PlotFormat=%d\n' % index)
+            text_file.write('PlotModeColor=%d\n' % (not cfg.monochrome))
+            text_file.write('PlotFrameRef=%d\n' % (not cfg.no_frame))
 
 
 def set_output_file(cfg, ext):
@@ -515,10 +518,13 @@ if __name__ == '__main__':
     parser.add_argument('--time_out_scale', help='Timeout multiplier, affects most timeouts',
                         type=float, default=TIME_OUT_MULT)
 
+    # afFm
     export_parser = subparsers.add_parser('export', help='Export a schematic')
     export_parser.add_argument('--file_format', '-f', help='Export file format',
                                choices=['svg', 'pdf', 'ps', 'dxf', 'hpgl'], default='pdf')
     export_parser.add_argument('--all_pages', '-a', help='Plot all schematic pages in one file', action='store_true')
+    export_parser.add_argument('--monochrome', '-m', help='Black and white output', action='store_true')
+    export_parser.add_argument('--no_frame', '-F', help='No frame and title block', action='store_true')
 
     erc_parser = subparsers.add_parser('run_erc', help='Run Electrical Rules Checker on a schematic')
     erc_parser.add_argument('--errors_filter', '-f', nargs=1, help='File with filters to exclude errors')
@@ -537,6 +543,8 @@ if __name__ == '__main__':
     set_time_out_scale_f(cfg.time_out_scale)
     cfg.video_name = args.command+'_eeschema_screencast.ogv'
     cfg.all_pages = getattr(args, 'all_pages', False)
+    cfg.monochrome = getattr(args, 'monochrome', False)
+    cfg.no_frame = getattr(args, 'no_frame', False)
     cfg.warnings_as_errors = getattr(args, 'warnings_as_errors', False)
     cfg.wait_start = args.wait_start
     # Make sure the input file exists and has an extension
