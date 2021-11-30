@@ -131,7 +131,7 @@ def dismiss_error():
 
 
 def wait_pcbnew(time=10, others=None, popen_obj=None):
-    return wait_for_window('Main pcbnew window', r'Pcbnew', time, others=others, popen_obj=popen_obj)
+    return wait_for_window('Main pcbnew window', r'^Pcbnew', time, others=others, popen_obj=popen_obj)
 
 
 def wait_pcbew_start(cfg):
@@ -421,7 +421,7 @@ def capture_3d_view(cfg):
     logger.info('Open 3D viewer')
     wait_point(cfg)
     xdotool(['key', 'alt+3'])
-    id_3d = wait_for_window('3D Viewer', '3D Viewer')[0]
+    wait_for_window('3D Viewer', '3D Viewer')[0]
     wait_point(cfg)
     wait_3d_ready()
 
@@ -657,7 +657,8 @@ def create_pcbnew_config(cfg):
             text_file.write('PcbFrameSize_y=%d\n' % (cfg.rec_height))
             text_file.write('ShowAxis=0\n')
             text_file.write('ShowFootprints_Normal=%d\n' % (not cfg.no_tht))  # Normal?!
-            text_file.write('ShowFootprints_Insert=%d\n' % (not cfg.no_smd))  # Insert????!!!! please a cup of coffee for this guy ...
+            # Insert????!!!! please a cup of coffee for this guy ...
+            text_file.write('ShowFootprints_Insert=%d\n' % (not cfg.no_smd))
             text_file.write('ShowFootprints_Virtual=%d\n' % (not cfg.no_virtual))
             text_file.write('RenderEngine=%d\n' % (cfg.ray_tracing))
             write_color(text_file, 'Bg', cfg.bg_color_1)
@@ -759,8 +760,10 @@ if __name__ == '__main__':
     v3d_parser.add_argument('--bg_color_2', '-B', nargs=1, help='Background color 2', default=['#CCCCE5'])
     v3d_parser.add_argument('--board_color', nargs=1, help='Board body color', default=['#332B16'])
     v3d_parser.add_argument('--copper_color', '-c', nargs=1, help='Copper color', default=['#B29C00'])
-    v3d_parser.add_argument('--move_x', '-x', nargs=1, help='Steps to move in the X axis (positive is to the right)', default=[0], type=int)
-    v3d_parser.add_argument('--move_y', '-y', nargs=1, help='Steps to move in the Y axis (positive is up)', default=[0], type=int)
+    v3d_parser.add_argument('--move_x', '-x', nargs=1, help='Steps to move in the X axis (positive is to the right)',
+                            default=[0], type=int)
+    v3d_parser.add_argument('--move_y', '-y', nargs=1, help='Steps to move in the Y axis (positive is up)', default=[0],
+                            type=int)
     v3d_parser.add_argument('--no_smd', '-S', help='Do not include surface mount components', action='store_true')
     v3d_parser.add_argument('--no_tht', '-T', help='Do not include through-hole components', action='store_true')
     v3d_parser.add_argument('--virtual', '-V', help='Include virtual components', action='store_true')
@@ -770,8 +773,10 @@ if __name__ == '__main__':
     v3d_parser.add_argument('--silk_color', nargs=1, help='Silk color', default=['#E5E5E5'])
     v3d_parser.add_argument('--sm_color', nargs=1, help='Solder mask color', default=['#143324'])
     v3d_parser.add_argument('--sp_color', nargs=1, help='Solder paste color', default=['#808080'])
-    v3d_parser.add_argument('--view', '-v', nargs=1, help='Axis view, uppercase is reversed (i.e. Z is bottom)', default=['z'], choices=['x', 'y', 'z', 'X', 'Y', 'Z'],)
-    v3d_parser.add_argument('--wait_rt', '-w', nargs=1, help='Seconds to wait for the ray tracing render', default=[5], type=int)
+    v3d_parser.add_argument('--view', '-v', nargs=1, help='Axis view, uppercase is reversed (i.e. Z is bottom)',
+                            default=['z'], choices=['x', 'y', 'z', 'X', 'Y', 'Z'],)
+    v3d_parser.add_argument('--wait_rt', '-w', nargs=1, help='Seconds to wait for the ray tracing render', default=[5],
+                            type=int)
     v3d_parser.add_argument('--zoom', '-z', nargs=1, help='Zoom steps (use negative to reduce)', default=[0], type=int)
     v3d_parser.add_argument('kicad_pcb_file', help='KiCad PCB file')
     v3d_parser.add_argument('output_dir', help='Output directory')
