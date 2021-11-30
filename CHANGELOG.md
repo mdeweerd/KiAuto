@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.13] - 2021-11-30
+### Fixed
+- Problems with xdotool failing to match strings on some locales.
+
 ## [1.5.12] - 2021-11-25
 ### Added
 - Monochrome schematic print.

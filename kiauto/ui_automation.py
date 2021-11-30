@@ -15,6 +15,7 @@ and efficiently copy-pasting strings in the UI.
 
 Based on splitflap/electronics/scripts/export_util.py by Scott Bezek
 """
+import re
 import os
 from subprocess import Popen, CalledProcessError, TimeoutExpired, call, check_output, STDOUT, DEVNULL
 import time
@@ -201,7 +202,7 @@ def recorded_xvfb(cfg, num_try=0):
 
 
 def xdotool(command):
-    return check_output(['xdotool'] + command, stderr=DEVNULL)
+    return check_output(['xdotool'] + command, stderr=DEVNULL).decode()
     # return check_output(['xdotool'] + command)
 
 
@@ -248,6 +249,14 @@ def text_replace(string):
 #     return output
 
 
+def get_windows(all=False):
+    cmd = ['search', '--name', '.*']
+    if not all:
+        cmd.insert(1, '--onlyvisible')
+    ids = xdotool(cmd).splitlines()
+    return [(i, xdotool(['getwindowname', i])[:-1]) for i in ids]
+
+
 def debug_window(id=None):  # pragma: no cover
     if log.get_level() < 2:
         return
@@ -264,6 +273,12 @@ def debug_window(id=None):  # pragma: no cover
         call(['vmstat', '-s'])
     if shutil.which('uptime'):
         call(['uptime'])
+    logger.debug("Visible windows:")
+    for i in get_windows():
+        logger.debug("Window ID: `{}` ; name: `{}`".format(i[0], i[1]))
+    logger.debug("All windows:")
+    for i in get_windows(all=True):
+        logger.debug("Window ID: `{}` ; name: `{}`".format(i[0], i[1]))
 
 
 def wait_focused(id, timeout=10):
@@ -300,6 +315,16 @@ def wait_not_focused(id, timeout=10):
     raise RuntimeError('Timed out waiting for %s window to lose focus' % id)
 
 
+def search_visible_windows(regex):
+    """ Workaround for problems in xdotool failing to match window names """
+    r = re.compile(regex)
+    found = []
+    for i in get_windows():
+        if r.search(i[1]):
+            found.append(i[0])
+    return found
+
+
 def wait_for_window(name, window_regex, timeout=10, focus=True, skip_id=0, others=None, popen_obj=None):
     global time_out_scale
     timeout *= time_out_scale
@@ -307,38 +332,33 @@ def wait_for_window(name, window_regex, timeout=10, focus=True, skip_id=0, other
     logger.info('Waiting for "%s" ...', name)
     if skip_id:
         logger.debug('Will skip %s', skip_id)
-    xdotool_command = ['search', '--onlyvisible', '--name', window_regex]
 
     for i in range(int(timeout/DELAY)):
         try:
-            window_id = xdotool(xdotool_command).splitlines()
+            window_id = search_visible_windows(window_regex)
             logger.debug('Found %s window (%d)', name, len(window_id))
-            if len(window_id) == 1:
-                id = window_id[0]
-            if len(window_id) > 1:
-                id = window_id[1]
-            logger.debug('Window id: %s', id)
-            if id != skip_id:
-                if focus:
-                    xdotool_command = ['windowfocus', '--sync', id]
-                    xdotool(xdotool_command)
-                    wait_focused(id, timeout)
-                return window_id
-            else:
-                logger.debug('Skipped')
+            if len(window_id):
+                if len(window_id) == 1:
+                    id = window_id[0]
+                if len(window_id) > 1:
+                    id = window_id[1]
+                logger.debug('Window id: %s', id)
+                if id != skip_id:
+                    if focus:
+                        xdotool(['windowfocus', '--sync', id])
+                        wait_focused(id, timeout)
+                    return window_id
+                else:
+                    logger.debug('Skipped')
         except CalledProcessError:
             if popen_obj and popen_obj.poll() is not None:
                 raise
         # Check if we have a list of alternative windows
         if others:
             for other in others:
-                cmd = ['search', '--onlyvisible', '--name', other]
-                try:
-                    xdotool(cmd)
+                window_id = search_visible_windows(other)
+                if len(window_id):
                     raise ValueError(other)
-                except CalledProcessError:
-                    if popen_obj and popen_obj.poll() is not None:
-                        raise
         time.sleep(DELAY)
     debug_window()  # pragma: no cover
     raise RuntimeError('Timed out waiting for %s window' % name)

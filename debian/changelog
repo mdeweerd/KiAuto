@@ -1,3 +1,9 @@
+kiauto (1.5.13-1) stable; urgency=medium
+
+  * Fixed problems with xdotool failing to match strings on some locales.
+
+ -- Salvador Eduardo Tropea <salvador@inti.gob.ar>  Tue, 30 Nov 2021 12:39:52 -0300
+
 kiauto (1.5.12-1) stable; urgency=medium
 
   * Fixed pcbnew_do export problems when the PCB name contained "print" and we
