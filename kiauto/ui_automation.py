@@ -254,7 +254,15 @@ def get_windows(all=False):
     if not all:
         cmd.insert(1, '--onlyvisible')
     ids = xdotool(cmd).splitlines()
-    return [(i, xdotool(['getwindowname', i])[:-1]) for i in ids]
+    res = []
+    for i in ids:
+        name = ''
+        try:
+            name = xdotool(['getwindowname', i])[:-1]
+        except CalledProcessError:
+            name = '** No longer there **'
+        res.append((i, name))
+    return res
 
 
 def debug_window(id=None):  # pragma: no cover
