@@ -416,6 +416,8 @@ def wait_3d_ready():
         exit(PCBNEW_ERROR)
     xdotool(['key', 'Escape'])
     wait_for_window('3D Viewer', '3D Viewer')
+    # Wait some time before sending commands
+    sleep(0.1)
 
 
 def capture_3d_view(cfg):
@@ -479,9 +481,14 @@ def capture_3d_view(cfg):
                     pcbnew_process = process
                     break
             end = time.clock_gettime(time.CLOCK_MONOTONIC) + cfg.wait_rt
-            cpu_usage = 100
-            while (cpu_usage > 10) and (time.clock_gettime(time.CLOCK_MONOTONIC) < end):
+            counter = 5
+            while (counter > 0) and (time.clock_gettime(time.CLOCK_MONOTONIC) < end):
                 cpu_usage = pcbnew_process.cpu_percent(0.3)
+                if cpu_usage > 5:
+                    if counter < 5:
+                        counter = counter + 1
+                else:
+                    counter = counter - 1
                 logger.debug('CPU {} %, waiting ...'.format(cpu_usage))
         else:
             sleep(cfg.wait_rt)
