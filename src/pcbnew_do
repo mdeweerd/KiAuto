@@ -416,8 +416,6 @@ def wait_3d_ready():
         exit(PCBNEW_ERROR)
     xdotool(['key', 'Escape'])
     wait_for_window('3D Viewer', '3D Viewer')
-    # Wait some time before sending commands
-    sleep(0.1)
 
 
 def capture_3d_view(cfg):
@@ -467,6 +465,9 @@ def capture_3d_view(cfg):
             zoom = -zoom
             zoom_b = '5'
         for _ in range(zoom):
+            # Wait some time before sending commands
+            # See discussion on #13 issue at GitHub
+            sleep(0.05)
             xdotool(['click', zoom_b])
             wait_3d_ready()
 
