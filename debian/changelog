@@ -1,3 +1,10 @@
+kiauto (1.5.14-1) stable; urgency=medium
+
+  * Added experimental mechanism to detect the ray tracing end (#12)
+  * Fixed 3D View zoom issues on some systems (#13)
+
+ -- Salvador Eduardo Tropea <salvador@inti.gob.ar>  Thu, 02 Dec 2021 13:17:04 -0300
+
 kiauto (1.5.13-1) stable; urgency=medium
 
   * Fixed problems with xdotool failing to match strings on some locales.

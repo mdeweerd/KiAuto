@@ -5,12 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.5.14] - 2021-12-02
 ### Added
 - Added experimental mechanism to detect the ray tracing end (#12)
 
 ### Fixed
 - 3D View zoom issues on some systems (#13)
-
 
 ## [1.5.13] - 2021-11-30
 ### Fixed
