@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added experimental mechanism to detect the ray tracing end (#12)
 
+### Fixed
+- 3D View zoom issues on some systems (#13)
+
+
 ## [1.5.13] - 2021-11-30
 ### Fixed
 - Problems with xdotool failing to match strings on some locales.
