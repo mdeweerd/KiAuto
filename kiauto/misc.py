@@ -138,8 +138,9 @@ class Config(object):
         # Config file names
         if self.kicad_version >= KICAD_VERSION_5_99:
             self.kicad_conf_path = pcbnew.GetSettingsManager().GetUserSettingsPath()
-            if ng_ver:
-                self.kicad_conf_path = self.kicad_conf_path.replace('/kicad/', '/kicadnightly/')
+            # No longer needed for 202112021512+6.0.0+rc1+287+gbb08ef2f41+deb11
+            # if ng_ver:
+            #    self.kicad_conf_path = self.kicad_conf_path.replace('/kicad/', '/kicadnightly/')
         else:
             # Bug in KiCad (#6989), prints to stderr:
             # `../src/common/stdpbase.cpp(62): assert "traits" failed in Get(test_dir): create wxApp before calling this`
@@ -202,7 +203,9 @@ class Config(object):
         # Some details about the UI
         if self.kicad_version >= KICAD_VERSION_5_99:
             # KiCad 5.99.0
-            self.ee_window_title = r'\[.*\] — Eeschema$'  # "PROJECT [HIERARCHY_PATH] - Eeschema"
+            # self.ee_window_title = r'\[.*\] — Eeschema$'  # "PROJECT [HIERARCHY_PATH] - Eeschema"
+            # KiCad 6.0.0 rc1
+            self.ee_window_title = r'\[.*\] — Schematic Editor$'  # "PROJECT [HIERARCHY_PATH] - Schematic Editor"
         else:
             # KiCad 5.1.6
             self.ee_window_title = r'Eeschema.*\.sch'  # "Eeschema - file.sch"

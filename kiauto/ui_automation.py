@@ -55,7 +55,10 @@ class PopenContext(Popen):
             # KiCad nightly uses a shell script as intermediate to run setup the environment
             # and run the proper binary. If we simply call "terminate" we just kill the
             # shell script. So we create a group and then kill the whole group.
-            os.killpg(os.getpgid(self.pid), signal.SIGTERM)
+            try:
+                os.killpg(os.getpgid(self.pid), signal.SIGTERM)
+            except ProcessLookupError:
+                pass
             # self.terminate()
         # Wait for the process to terminate, to avoid zombies.
         try:
@@ -344,8 +347,8 @@ def wait_for_window(name, window_regex, timeout=10, focus=True, skip_id=0, other
     for i in range(int(timeout/DELAY)):
         try:
             window_id = search_visible_windows(window_regex)
-            logger.debug('Found %s window (%d)', name, len(window_id))
             if len(window_id):
+                logger.debug('Found %s window (%d)', name, len(window_id))
                 if len(window_id) == 1:
                     id = window_id[0]
                 if len(window_id) > 1:
@@ -367,6 +370,11 @@ def wait_for_window(name, window_regex, timeout=10, focus=True, skip_id=0, other
                 window_id = search_visible_windows(other)
                 if len(window_id):
                     raise ValueError(other)
+        if popen_obj:
+            # Is KiCad running?
+            ret_code = popen_obj.poll()
+            if ret_code is not None:
+                raise CalledProcessError(ret_code, 'KiCad')
         time.sleep(DELAY)
     debug_window()  # pragma: no cover
     raise RuntimeError('Timed out waiting for %s window' % name)

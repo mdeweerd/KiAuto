@@ -129,7 +129,7 @@ def wait_eeschema_start(cfg):
             logger.debug('Found "'+other+'" window instead of eeschema')
             failed_focuse = True
         except subprocess.CalledProcessError:
-            logger.debug('Eeschema is no longer running (returned {})'.format(cfg.popen_obj.poll()))
+            logger.debug('* Eeschema is no longer running (returned {})'.format(cfg.popen_obj.poll()))
         if not failed_focuse:
             return
         # Failed to find the window
@@ -595,6 +595,7 @@ if __name__ == '__main__':
                               stderr=flog_err, stdout=flog_out) as eeschema_proc:
                 cfg.eeschema_pid = eeschema_proc.pid
                 cfg.popen_obj = eeschema_proc
+                logger.debug('EEschema PID: '+str(eeschema_proc.pid))
                 # Wait for Eeschema
                 wait_eeschema_start(cfg)
                 if eeschema_proc.poll() is not None:
