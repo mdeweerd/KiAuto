@@ -133,7 +133,7 @@ def dismiss_error():
 
 
 def wait_pcbnew(time=10, others=None, popen_obj=None):
-    return wait_for_window('Main pcbnew window', r'^Pcbnew', time, others=others, popen_obj=popen_obj)
+    return wait_for_window('Main pcbnew window',  cfg.pn_window_title, time, others=others, popen_obj=popen_obj)
 
 
 def wait_pcbew_start(cfg):

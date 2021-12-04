@@ -206,9 +206,11 @@ class Config(object):
             # self.ee_window_title = r'\[.*\] — Eeschema$'  # "PROJECT [HIERARCHY_PATH] - Eeschema"
             # KiCad 6.0.0 rc1
             self.ee_window_title = r'\[.*\] — Schematic Editor$'  # "PROJECT [HIERARCHY_PATH] - Schematic Editor"
+            self.pn_window_title = r'PCB Editor$'
         else:
             # KiCad 5.1.6
             self.ee_window_title = r'Eeschema.*\.sch'  # "Eeschema - file.sch"
+            self.pn_window_title = r'^Pcbnew'
         # Collected errors and unconnecteds (warnings)
         self.errs = []
         self.wrns = []
