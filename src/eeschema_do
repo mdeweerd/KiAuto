@@ -187,11 +187,21 @@ def eeschema_plot_schematic(cfg):
         open_keys = ['ctrl+shift+p']
     else:
         open_keys = ['alt+f', 'l']
+    retry = False
     # Open the dialog
     logger.info('Open File->pLot')
     wait_point(cfg)
     xdotool(['key']+open_keys)
-    wait_for_window('plot', 'Plot Schematic Options')
+    try:
+        wait_for_window('plot', 'Plot Schematic Options')
+    except RuntimeError:  # pragma: no cover
+        # Perhaps the main window wasn't available yet
+        retry = True
+    if retry:
+        logger.info('Plot dialog did not open, retrying')
+        wait_eeschema_start(cfg)
+        xdotool(['key']+open_keys)
+        wait_for_window('plot', 'Plot Schematic Options')
     # With a WM we usually get the "Browse" button selected.
     # Without it we usually are in the input box.
     # For this reason we move to the left and select all.
