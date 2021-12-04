@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2020 Salvador E. Tropea
-# Copyright (c) 2020 Instituto Nacional de Tecnologïa Industrial
+# Copyright (c) 2020-2021 Salvador E. Tropea
+# Copyright (c) 2020-2021 Instituto Nacional de Tecnologïa Industrial
 # License: Apache 2.0
 # Project: KiAuto (formerly kicad-automation-scripts)
 """
@@ -77,7 +77,9 @@ def test_print_pcb_good_dwg_dism(test_dir):
         ctx.stop_kicad()
     ctx.expect_out_file(pdf)
     ctx.compare_image(pdf)
-    assert ctx.search_err(r"Dismiss pcbnew already running") is not None
+    if ctx.kicad_version < context.KICAD_VERSION_5_99:
+        # Only KiCad 5 reports it as a problem
+        assert ctx.search_err(r"Dismiss pcbnew already running") is not None
     ctx.clean_up()
 
 
