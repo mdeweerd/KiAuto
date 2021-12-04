@@ -235,10 +235,13 @@ def eeschema_parse_erc(cfg):
         err_regex = re.compile(r'^\[(\S+)\]: (.*)')
     else:
         err_regex = re.compile(r'^ErrType\((\d+)\): (.*)')
-    for line in lines:
+    for i, line in enumerate(lines):
         m = err_regex.search(line)
         if m:
             msg = '({}) {}'.format(m.group(1), m.group(2))
+            if cfg.kicad_version >= KICAD_VERSION_5_99 and i < len(lines):
+                # KiCad 6 moved the severity to the next line
+                line = lines[i+1]
             if r'Severity: error' in line:
                 is_err = True
                 cfg.errs.append(msg)
