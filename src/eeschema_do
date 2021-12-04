@@ -45,7 +45,8 @@ from kiauto.misc import (REC_W, REC_H, __version__, NO_SCHEMATIC, EESCHEMA_CFG_P
                          WAIT_START, WRONG_SCH_NAME, EESCHEMA_ERROR, Config, KICAD_VERSION_5_99,
                          USER_HOTKEYS_PRESENT, __copyright__, __license__, TIME_OUT_MULT, get_en_locale)
 from kiauto.ui_automation import (PopenContext, xdotool, wait_for_window, wait_not_focused, recorded_xvfb,
-                                  wait_point, text_replace, set_time_out_scale, wait_xserver)
+                                  wait_point, text_replace, set_time_out_scale, wait_xserver, wait_window_get_ref,
+                                  wait_window_change)
 
 TITLE_CONFIRMATION = '^Confirmation$'
 TITLE_REMAP_SYMBOLS = '^Remap Symbols$'
@@ -310,7 +311,7 @@ def eeschema_run_erc_schematic_6_0(cfg):
     # Wait dialog
     retry = False
     try:
-        wait_for_window('Electrical Rules Checker dialog', 'Electrical Rules Checker')
+        id = wait_for_window('Electrical Rules Checker dialog', 'Electrical Rules Checker')
     except RuntimeError:  # pragma: no cover
         # Perhaps the fill took too muchm try again
         retry = True
@@ -318,16 +319,17 @@ def eeschema_run_erc_schematic_6_0(cfg):
         logger.info('ERC dialog did not open, retrying')
         wait_eeschema_start(cfg)
         xdotool(['key', 'Escape', 'ctrl+shift+i'])
-        wait_for_window('Electrical Rules Checker dialog', 'Electrical Rules Checker')
+        id = wait_for_window('Electrical Rules Checker dialog', 'Electrical Rules Checker')
     wait_point(cfg)
     # Run the ERC
     logger.info('Run ERC')
     wait_point(cfg)
+    wait_window_get_ref(id[0], 108, 27, 100, 10)
     xdotool(['key', 'Return'])
     #
     # Currently is impossible to know when it finished.
     #
-    time.sleep(15*cfg.time_out_scale)
+    wait_window_change(id[0], 108, 27, 100, 10, 45*cfg.time_out_scale)
     # Save the report
     logger.info('Open the save dialog')
     wait_point(cfg)

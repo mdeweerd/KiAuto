@@ -17,10 +17,11 @@ Based on splitflap/electronics/scripts/export_util.py by Scott Bezek
 """
 import re
 import os
-from subprocess import Popen, CalledProcessError, TimeoutExpired, call, check_output, STDOUT, DEVNULL
+from subprocess import Popen, CalledProcessError, TimeoutExpired, call, check_output, STDOUT, DEVNULL, run, PIPE
 import time
 import shutil
 import signal
+from tempfile import mkdtemp
 from contextlib import contextmanager
 # python3-xvfbwrapper
 from xvfbwrapper import Xvfb
@@ -29,6 +30,7 @@ from kiauto.file_util import get_log_files
 from kiauto import log
 logger = log.get_logger(__name__)
 time_out_scale = 1.0
+img_tmp_dir = None
 
 
 def set_time_out_scale(scale):
@@ -383,3 +385,37 @@ def wait_for_window(name, window_regex, timeout=10, focus=True, skip_id=0, other
 def wait_point(cfg):
     if cfg.wait_for_key:
         input('Press a key')
+
+
+def capture_window_region(window_id, x, y, w, h, name):
+    """ Capture a region of a window to a file """
+    geometry = '{}x{}+{}+{}'.format(w, h, x, y)
+    logger.debug('Capturing region {} from window {}'.format(geometry, window_id))
+    name = os.path.join(img_tmp_dir, name)
+    res = check_output(['import', '-window', str(window_id), '-crop', geometry, name], stderr=DEVNULL).decode()
+    logger.debug('Import output: ' + res)
+
+
+def wait_window_get_ref(window_id, x, y, w, h):
+    """ Takes a region of a window as reference image """
+    global img_tmp_dir
+    img_tmp_dir = mkdtemp(prefix='tmp-kiauto-images-')
+    capture_window_region(window_id, x, y, w, h, "wait_ref.png")
+
+
+def wait_window_change(window_id, x, y, w, h, time_out):
+    """ Waits for a change in a window region """
+    for i in range(int(time_out + 0.9)):
+        capture_window_region(window_id, x, y, w, h, "current.png")
+        current = os.path.join(img_tmp_dir, "current.png")
+        wait_ref = os.path.join(img_tmp_dir, "wait_ref.png")
+        difference = os.path.join(img_tmp_dir, "difference.png")
+        res = run(['compare', '-fuzz', '5%', '-metric', 'AE', current, wait_ref, difference],
+                  stderr=PIPE).stderr.decode()
+        ae = int(res)
+        logger.debug('Difference ' + res)
+        if ae:
+            shutil.rmtree(img_tmp_dir)
+            return
+        time.sleep(1)
+    shutil.rmtree(img_tmp_dir)
