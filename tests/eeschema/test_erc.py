@@ -103,7 +103,9 @@ def test_erc_ok_eeschema_running(test_dir):
     ctx.expect_out_file(rep)
     logging.debug('Checking for colors in DEBUG logs')
     assert ctx.search_err(r"\[36;1mDEBUG:") is not None
-    assert ctx.search_err(r"Dismiss eeschema already running") is not None
+    if ctx.kicad_version < context.KICAD_VERSION_5_99:
+        # Only KiCad 5 reports it as a problem
+        assert ctx.search_err(r"Dismiss eeschema already running") is not None
     ctx.clean_up()
 
 
