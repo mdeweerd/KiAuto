@@ -69,7 +69,7 @@ class TestContext(object):
             self.pcbnew_conf = os.path.join(self.kicad_cfg_dir, 'pcbnew')
             self.eeschema_conf = os.path.join(self.kicad_cfg_dir, 'eeschema')
         else:
-            #self.kicad_cfg_dir = pcbnew.SETTINGS_MANAGER.GetUserSettingsPath().replace('/kicad/', '/kicadnightly/')
+            # self.kicad_cfg_dir = pcbnew.SETTINGS_MANAGER.GetUserSettingsPath().replace('/kicad/', '/kicadnightly/')
             self.kicad_cfg_dir = pcbnew.SETTINGS_MANAGER.GetUserSettingsPath()
             self.board_dir = '../kicad6'
             self.sch_ext = '.kicad_sch'
