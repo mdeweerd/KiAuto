@@ -32,7 +32,7 @@ test_server_latest:
 
 test_server_nightly:
 	python3-coverage erase
-	KIAUS_USE_NIGHTLY=5.99 pytest-3 --test_dir output
+	KIAUS_USE_NIGHTLY=6.0 pytest-3 --test_dir output
 	python3-coverage report
 
 test: lint
@@ -69,9 +69,9 @@ test_docker_local_ng:
 	# Run in the same directory to make the __pycache__ valid
 	# Also change the owner of the files to the current user (we run as root like in GitHub)
 #	docker run --rm -v $(CWD):$(CWD) --workdir="$(CWD)" setsoft/kicad_auto_test:nightly \
-#		/bin/bash -c "flake8 . --count --statistics ; KIAUS_USE_NIGHTLY=5.99 $(PYTEST) --log-cli-level debug -k '$(SINGLE_TEST)' --test_dir output ; chown -R $(USER_ID):$(GROUP_ID) output/ tests/ .coverage"
+#		/bin/bash -c "flake8 . --count --statistics ; KIAUS_USE_NIGHTLY=6.0 $(PYTEST) --log-cli-level debug -k '$(SINGLE_TEST)' --test_dir output ; chown -R $(USER_ID):$(GROUP_ID) output/ tests/ .coverage"
 	docker run --rm -v $(CWD):$(CWD) --workdir="$(CWD)" setsoft/kicad_auto_test:nightly \
-		/bin/bash -c "flake8 . --count --statistics ; KIAUS_USE_NIGHTLY=5.99 $(PYTEST) --test_dir output ; chown -R $(USER_ID):$(GROUP_ID) output/ tests/ .coverage"
+		/bin/bash -c "flake8 . --count --statistics ; KIAUS_USE_NIGHTLY=6.0 $(PYTEST) --test_dir output ; chown -R $(USER_ID):$(GROUP_ID) output/ tests/ .coverage"
 	$(PY_COV) report
 	$(PY_COV) html
 	x-www-browser htmlcov/index.html
@@ -121,8 +121,8 @@ gen1_ref:
 
 gen_ref:
 	# Force using the default color scheme
-	if [ -e $(HOME)/.config/kicadnightly/5.99/colors ] && [ -e output $(HOME)/.config/kicadnightly/5.99/colors.ok ] ; then rm -rf $(HOME)/.config/kicadnightly/5.99/colors.ok; fi
-	if [ -e $(HOME)/.config/kicadnightly/5.99/colors ] ; then mv $(HOME)/.config/kicadnightly/5.99/colors $(HOME)/.config/kicadnightly/5.99/colors.ok; fi
+	if [ -e $(HOME)/.config/kicadnightly/6.0/colors ] && [ -e output $(HOME)/.config/kicadnightly/6.0/colors.ok ] ; then rm -rf $(HOME)/.config/kicadnightly/6.0/colors.ok; fi
+	if [ -e $(HOME)/.config/kicadnightly/6.0/colors ] ; then mv $(HOME)/.config/kicadnightly/6.0/colors $(HOME)/.config/kicadnightly/6.0/colors.ok; fi
 	# Reference outputs, must be manually inspected if regenerated
 	cp -a $(REFILL).refill $(REFILL)
 	src/pcbnew_do export --output_name zone-refill.pdf $(REFILL) $(REFDIR) F.Cu B.Cu Edge.Cuts
@@ -152,7 +152,7 @@ gen_ref:
 	sed -E -e 's/^%%CreationDate: .*/%%CreationDate: DATE/' -e 's/^%%Title: .*/%%Title: TITLE/' $(REFDIR)good-project-Power.ps > $(REFDIR)good-project-Power.ps.new
 	mv $(REFDIR)good-project-Power.ps.new $(REFDIR)good-project-Power.ps
 	# Restore the colors scheme
-	mv $(HOME)/.config/kicadnightly/5.99/colors.ok $(HOME)/.config/kicadnightly/5.99/colors
+	mv $(HOME)/.config/kicadnightly/6.0/colors.ok $(HOME)/.config/kicadnightly/6.0/colors
 
 single_test:
 	rm -rf pp
