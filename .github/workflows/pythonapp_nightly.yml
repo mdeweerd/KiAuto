@@ -24,9 +24,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Test nightly
       run: |
-        # Currently disabled
         mkdir output
-        echo make test_server_nightly
+        make test_server_nightly
     - name: Store results
       if: ${{ always() }}
       uses: actions/upload-artifact@v1
