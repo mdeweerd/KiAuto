@@ -52,6 +52,8 @@ from kiauto.ui_automation import (PopenContext, xdotool, wait_not_focused, wait_
 TITLE_CONFIRMATION = '^Confirmation$'
 TITLE_ERROR = '^Error$'
 TITLE_WARNING = '^Warning$'
+# This is very Debian specific, you need to install `gdb` and the kicad-nightly-dbg package
+DEBUG_KICAD_NG = False
 
 
 def parse_drc(cfg):
@@ -939,7 +941,15 @@ if __name__ == '__main__':
             do_retry = False
             with recorded_xvfb(cfg, retry):
                 logger.debug('Starting '+cfg.pcbnew)
-                with PopenContext([cfg.pcbnew, cfg.input_file], stderr=flog_err, close_fds=True,
+                if DEBUG_KICAD_NG:
+                    os.environ['LD_LIBRARY_PATH'] = '/usr/lib/kicad-nightly/lib/x86_64-linux-gnu/:/usr/lib/kicad-nightly/lib/'
+                    os.environ['KICAD_PATH'] = '/usr/share/kicad-nightly'
+                    cmd = ['gdb', '-batch', '-n', '-ex', 'set pagination off', '-ex', 'run', '-ex', 'bt',
+                           '-ex', 'bt full', '-ex', 'thread apply all bt full', '--args', '/usr/lib/kicad-nightly/bin/pcbnew',
+                           cfg.input_file]
+                else:
+                    cmd = [cfg.pcbnew, cfg.input_file]
+                with PopenContext(cmd, stderr=flog_err, close_fds=True,
                                   stdout=flog_out, start_new_session=True) as pcbnew_proc:
                     cfg.pcbnew_pid = pcbnew_proc.pid
                     cfg.popen_obj = pcbnew_proc
