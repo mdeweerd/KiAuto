@@ -431,7 +431,7 @@ def open_dialog_with_retry(msg, keys, desc, w_name, cfg):
     xdotool(keys)
     retry = False
     try:
-        wait_for_window(desc, w_name)
+        id = wait_for_window(desc, w_name)
     except RuntimeError:  # pragma: no cover
         # Perhaps the main window wasn't available yet
         retry = True
@@ -439,4 +439,5 @@ def open_dialog_with_retry(msg, keys, desc, w_name, cfg):
         logger.info('"{}" did not open, retrying'.format(desc))
         # wait_eeschema_start(cfg)
         xdotool(keys)
-        wait_for_window(desc, w_name)
+        id = wait_for_window(desc, w_name)
+    return id

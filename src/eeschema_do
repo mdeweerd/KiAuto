@@ -303,8 +303,8 @@ def eeschema_run_erc_schematic_5_1(cfg):
 def eeschema_run_erc_schematic_6_0(cfg):
     # Open the ERC dialog
     keys = ['key', 'Escape', 'ctrl+shift+i']
-    open_dialog_with_retry('Open Tools->Electrical Rules Checker', keys, 'Electrical Rules Checker dialog',
-                           'Electrical Rules Checker', cfg)
+    id = open_dialog_with_retry('Open Tools->Electrical Rules Checker', keys, 'Electrical Rules Checker dialog',
+                                'Electrical Rules Checker', cfg)
     wait_point(cfg)
     # Run the ERC
     logger.info('Run ERC')
