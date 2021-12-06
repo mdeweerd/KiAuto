@@ -42,7 +42,7 @@ def test_3d_view_1(test_dir):
 
 def test_3d_view_2(test_dir):
     """ Simple 3D Viewer test """
-    ctx = context.TestContext(test_dir, '3DView_1', 'good-project')
+    ctx = context.TestContext(test_dir, '3DView_2', 'good-project')
     if ctx.kicad_version >= context.KICAD_VERSION_5_99:
         # Bug: https://gitlab.com/kicad/code/kicad/-/issues/9890
         # 3D Viewer crashing (Segmentation Fault) if no OpenGL available
