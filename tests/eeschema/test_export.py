@@ -156,7 +156,7 @@ def test_export_bw_pdf(test_dir):
     prj = 'good-project'
     pdf = prj+'.pdf'
     ctx = context.TestContextSCH(test_dir, 'Export_BW_PDF', prj)
-    mtime = ctx.get_pro_mtime()
+    # mtime = ctx.get_pro_mtime()
     cmd = [PROG, '-vv', '-r', 'export', '--file_format', 'pdf', '--monochrome', '--no_frame']
     ctx.run(cmd)
     ctx.expect_out_file(pdf)
