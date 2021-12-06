@@ -461,13 +461,18 @@ def create_eeschema_config(cfg):
     logger.debug('Selecting plot format %s (%d)', cfg.export_format, index)
     with open(cfg.conf_eeschema, "wt") as text_file:
         if cfg.conf_eeschema_json:
-            eeconf = {'plot': {'format': index}}
+            plot_ops = {}
+            plot_ops['format'] = index
+            plot_ops['color'] = not cfg.monochrome
+            plot_ops['frame_reference'] = not cfg.no_frame
+            # TODO: allow user configuration
+            plot_ops['color_theme'] = '_builtin_default'
+            eeconf = {'plot': plot_ops}
             eeconf['system'] = {"first_run_shown": True, "never_show_rescue_dialog": True}
             eeconf['appearance'] = {"show_sexpr_file_convert_warning": False}
             eeconf['window'] = {"size_x": cfg.rec_width, "size_y": cfg.rec_height}
             text_file.write(json.dumps(eeconf))
             logger.debug(json.dumps(eeconf))
-            # TODO: Implement PlotModeColor & PlotFrameRef
         else:
             text_file.write('RescueNeverShow=1\n')
             text_file.write('PlotFormat=%d\n' % index)
