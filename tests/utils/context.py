@@ -259,7 +259,7 @@ class TestContext(object):
                 diff]
 
     @staticmethod
-    def _compare_image(img, ref, diff, fuzz):
+    def _compare_image(img, ref, diff, fuzz='30%'):
         exact = int(fuzz[:-1]) <= 30
         cmd = TestContext.cmd_compare(img, ref, diff, fuzz)
         logging.debug('Comparing images with: '+usable_cmd(cmd))
@@ -270,7 +270,7 @@ class TestContext(object):
         # logging.debug('MSE={} ({})'.format(m.group(1), m.group(2)))
         ae = int(res.stderr.decode())
         logging.debug('AE=%d' % ae)
-        assert ae == 0 if exact else ae < 100
+        assert ae == 0 if exact else ae < 100, ae
 
     def compare_image(self, image, reference=None, diff='diff.png', fuzz='30%'):
         """ For images and single page PDFs """
