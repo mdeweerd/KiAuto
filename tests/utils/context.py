@@ -255,6 +255,7 @@ class TestContext(object):
                 '-crop', '100%x80%+0+36',
                 # Remove the area outside the image
                 '+repage',
+                '-colorspace', 'RGB',
                 diff]
 
     @staticmethod
