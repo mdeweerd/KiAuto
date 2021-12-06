@@ -26,6 +26,7 @@ from contextlib import contextmanager
 # python3-xvfbwrapper
 from xvfbwrapper import Xvfb
 from kiauto.file_util import get_log_files
+from kiauto.misc import KICAD_VERSION_5_99
 
 from kiauto import log
 logger = log.get_logger(__name__)
@@ -419,3 +420,23 @@ def wait_window_change(window_id, x, y, w, h, time_out):
             return
         time.sleep(1)
     shutil.rmtree(img_tmp_dir)
+
+
+def open_dialog_with_retry(msg, keys, desc, w_name, cfg):
+    logger.info(msg)
+    wait_point(cfg)
+    if cfg.kicad_version >= KICAD_VERSION_5_99:
+        # KiCad 6 has a very slow start-up
+        time.sleep(1)
+    xdotool(keys)
+    retry = False
+    try:
+        wait_for_window(desc, w_name)
+    except RuntimeError:  # pragma: no cover
+        # Perhaps the main window wasn't available yet
+        retry = True
+    if retry:
+        logger.info('"{}" did not open, retrying'.format(desc))
+        # wait_eeschema_start(cfg)
+        xdotool(keys)
+        wait_for_window(desc, w_name)

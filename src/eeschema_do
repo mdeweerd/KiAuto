@@ -46,7 +46,7 @@ from kiauto.misc import (REC_W, REC_H, __version__, NO_SCHEMATIC, EESCHEMA_CFG_P
                          USER_HOTKEYS_PRESENT, __copyright__, __license__, TIME_OUT_MULT, get_en_locale)
 from kiauto.ui_automation import (PopenContext, xdotool, wait_for_window, wait_not_focused, recorded_xvfb,
                                   wait_point, text_replace, set_time_out_scale, wait_xserver, wait_window_get_ref,
-                                  wait_window_change)
+                                  wait_window_change, open_dialog_with_retry)
 
 TITLE_CONFIRMATION = '^Confirmation$'
 TITLE_REMAP_SYMBOLS = '^Remap Symbols$'
@@ -184,24 +184,11 @@ def exit_eeschema(cfg):
 def eeschema_plot_schematic(cfg):
     # KiCad 5.1 vs 5.99 differences
     if cfg.kicad_version >= KICAD_VERSION_5_99:
-        open_keys = ['ctrl+shift+p']
+        open_keys = ['key', 'ctrl+shift+p']
     else:
-        open_keys = ['alt+f', 'l']
-    retry = False
+        open_keys = ['key', 'alt+f', 'l']
     # Open the dialog
-    logger.info('Open File->pLot')
-    wait_point(cfg)
-    xdotool(['key']+open_keys)
-    try:
-        wait_for_window('plot', 'Plot Schematic Options')
-    except RuntimeError:  # pragma: no cover
-        # Perhaps the main window wasn't available yet
-        retry = True
-    if retry:
-        logger.info('Plot dialog did not open, retrying')
-        wait_eeschema_start(cfg)
-        xdotool(['key']+open_keys)
-        wait_for_window('plot', 'Plot Schematic Options')
+    open_dialog_with_retry('Open File->pLot', open_keys, 'Plot dialog', 'Plot Schematic Options', cfg)
     # With a WM we usually get the "Browse" button selected.
     # Without it we usually are in the input box.
     # For this reason we move to the left and select all.
@@ -315,21 +302,9 @@ def eeschema_run_erc_schematic_5_1(cfg):
 
 def eeschema_run_erc_schematic_6_0(cfg):
     # Open the ERC dialog
-    logger.info('Open Tools->Electrical Rules Checker')
-    wait_point(cfg)
-    xdotool(['key', 'Escape', 'ctrl+shift+i'])
-    # Wait dialog
-    retry = False
-    try:
-        id = wait_for_window('Electrical Rules Checker dialog', 'Electrical Rules Checker')
-    except RuntimeError:  # pragma: no cover
-        # Perhaps the fill took too muchm try again
-        retry = True
-    if retry:
-        logger.info('ERC dialog did not open, retrying')
-        wait_eeschema_start(cfg)
-        xdotool(['key', 'Escape', 'ctrl+shift+i'])
-        id = wait_for_window('Electrical Rules Checker dialog', 'Electrical Rules Checker')
+    keys = ['key', 'Escape', 'ctrl+shift+i']
+    open_dialog_with_retry('Open Tools->Electrical Rules Checker', keys, 'Electrical Rules Checker dialog',
+                           'Electrical Rules Checker', cfg)
     wait_point(cfg)
     # Run the ERC
     logger.info('Run ERC')
@@ -372,18 +347,15 @@ def eeschema_run_erc_schematic(cfg):
 def eeschema_netlist_commands(cfg):
     # KiCad 5.1 vs 5.99 differences
     if cfg.kicad_version >= KICAD_VERSION_5_99:
-        open_keys = ['ctrl+shift+n']
+        open_keys = ['key', 'ctrl+shift+n']
         generate_keys = ['Return']
         dialog_name = 'Export Netlist'
     else:
-        open_keys = ['alt+t', 'n']
+        open_keys = ['key', 'alt+t', 'n']
         generate_keys = ['Tab', 'Tab', 'Return']
         dialog_name = 'Netlist'
     # Open the dialog
-    logger.info('Open Tools->Generate Netlist File')
-    wait_point(cfg)
-    xdotool(['key']+open_keys)
-    wait_for_window('Netlist dialog', dialog_name)
+    open_dialog_with_retry('Open Tools->Generate Netlist File', open_keys, 'Netlist dialog', dialog_name, cfg)
     # Start to generate the netlist (select file name)
     wait_point(cfg)
     xdotool(['key']+generate_keys)
@@ -423,16 +395,14 @@ def eeschema_netlist_commands(cfg):
 def eeschema_bom_xml_commands(cfg):
     # KiCad 5.1 vs 5.99 differences
     if cfg.kicad_version >= KICAD_VERSION_5_99:
-        open_keys = ['ctrl+shift+b']
+        open_keys = ['key', 'ctrl+shift+b']
         exit_keys = ['Escape']
     else:
-        open_keys = ['alt+t', 'm']
+        open_keys = ['key', 'alt+t', 'm']
         exit_keys = ['Tab', 'Tab', 'Tab', 'Tab', 'Tab', 'Tab', 'Tab', 'Tab', 'Tab', 'Return']
     # Open the dialog
-    logger.info('Open Tools->Generate Bill of Materials')
-    wait_point(cfg)
-    xdotool(['key']+open_keys)
-    wait_for_window('Bill of Material dialog', 'Bill of Material')
+    open_dialog_with_retry('Open Tools->Generate Bill of Materials', open_keys, 'Bill of Material dialog',
+                           'Bill of Material', cfg)
     # Select the command input and paste the command
     logger.info('Paste xslt command')
     wait_point(cfg)
