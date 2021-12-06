@@ -34,7 +34,7 @@ def test_3d_view_1(test_dir):
         logging.debug("Unsupported by KiCad 6")
         ctx.clean_up()
         return
-    cmd = [PROG, '3d_view', '--zoom', '3', '-x', '1', '--output_name', 'good_3d_rt_1.png', '-r']
+    cmd = [PROG, '3d_view', '--zoom', '3', '-x', '1', '--output_name', 'good_3d_rt_1.png', '-r', '-d', '-w', '600']
     ctx.run(cmd)
     ctx.compare_image('good_3d_rt_1.png', fuzz='50%')
     ctx.clean_up()
@@ -49,7 +49,8 @@ def test_3d_view_2(test_dir):
         logging.debug("Unsupported by KiCad 6")
         ctx.clean_up()
         return
-    cmd = [PROG, '3d_view', '--zoom', '6', '-x', '-1', '--output_name', 'good_3d_rt_2.png', '--no_smd', '-r', '-O']
+    cmd = [PROG, '3d_view', '--zoom', '6', '-x', '-1', '--output_name', 'good_3d_rt_2.png', '--no_smd', '-r', '-O', '-d',
+           '-w', '600']
     ctx.run(cmd)
     ctx.compare_image('good_3d_rt_2.png', fuzz='50%')
     ctx.clean_up()
