@@ -241,10 +241,10 @@ class TestContext(object):
             assert m
 
     @staticmethod
-    def cmd_compare(img, ref, diff):
+    def cmd_compare(img, ref, diff, fuzz):
         return ['compare',
-                # Tolerate 30 % error in color
-                '-fuzz', '30%',
+                # Tolerate 30/50 % error in color
+                '-fuzz', fuzz,
                 # Count how many pixels differ
                 '-metric', 'AE',
                 # Create a 720p image
@@ -259,22 +259,24 @@ class TestContext(object):
                 diff]
 
     @staticmethod
-    def _compare_image(img, ref, diff):
-        cmd = TestContext.cmd_compare(img, ref, diff)
+    def _compare_image(img, ref, diff, fuzz):
+        exact = int(fuzz[:-1]) <= 30
+        cmd = TestContext.cmd_compare(img, ref, diff, fuzz)
         logging.debug('Comparing images with: '+usable_cmd(cmd))
-        res = subprocess.check_output(cmd, stderr=subprocess.STDOUT)
+        res = subprocess.run(cmd, stderr=subprocess.PIPE)
+        assert res.returncode == 0 or not exact
         # m = re.match(r'([\d\.e-]+) \(([\d\.e-]+)\)', res.decode())
         # assert m
         # logging.debug('MSE={} ({})'.format(m.group(1), m.group(2)))
-        ae = int(res.decode())
+        ae = int(res.stderr.decode())
         logging.debug('AE=%d' % ae)
-        assert ae == 0
+        assert ae == 0 if exact else ae < 100
 
-    def compare_image(self, image, reference=None, diff='diff.png'):
+    def compare_image(self, image, reference=None, diff='diff.png', fuzz='30%'):
         """ For images and single page PDFs """
         if reference is None:
             reference = image
-        self._compare_image(self.get_out_path(image), os.path.join(self.ref_dir, reference), self.get_out_path(diff))
+        self._compare_image(self.get_out_path(image), os.path.join(self.ref_dir, reference), self.get_out_path(diff), fuzz)
 
     def svg_to_png(self, svg):
         png = os.path.splitext(svg)[0]+'.png'
