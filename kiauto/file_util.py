@@ -196,6 +196,7 @@ def create_user_hotkeys(cfg):
         text_file.write('eeschema.InspectionTool.runERC\tCtrl+Shift+I\n')
         text_file.write('pcbnew.DRCTool.runDRC\tCtrl+Shift+I\n')
         text_file.write('pcbnew.ZoneFiller.zoneFillAll\tB\n')
+        text_file.write('common.Control.show3DViewer\tAlt+3\n')
 
 
 def check_input_file(cfg, no_file, no_ext):
