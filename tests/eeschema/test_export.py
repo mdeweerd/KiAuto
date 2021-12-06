@@ -150,3 +150,15 @@ def test_export_all_hpgl(test_dir):
     ctx.expect_out_file(ctx.get_sub_sheet_name('logic', 'plt'))
     ctx.expect_out_file(ctx.get_sub_sheet_name('Power', 'plt'))
     ctx.clean_up()
+
+
+def test_export_bw_pdf(test_dir):
+    prj = 'good-project'
+    pdf = prj+'.pdf'
+    ctx = context.TestContextSCH(test_dir, 'Export_BW_PDF', prj)
+    mtime = ctx.get_pro_mtime()
+    cmd = [PROG, '-vv', '-r', 'export', '--file_format', 'pdf', '--monochrome', '--no_frame']
+    ctx.run(cmd)
+    ctx.expect_out_file(pdf)
+    ctx.compare_image(pdf, 'good_sch_bw_top.pdf')
+    ctx.clean_up()
