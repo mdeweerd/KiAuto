@@ -82,6 +82,10 @@ def parse_drc(cfg):
         m = re.search(r'^\*\* End of Report \*\*$', line)
         if m:
             break
+        # TODO: Add support for this category
+        m = re.search(r'^\*\* Found ([0-9]+) Footprint', line)
+        if m:
+            break
         if in_errs:
             m = err_regex.search(line)
             if m:
