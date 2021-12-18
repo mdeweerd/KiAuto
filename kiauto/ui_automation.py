@@ -268,6 +268,10 @@ def get_windows(all=False):
         except CalledProcessError:
             name = '** No longer there **'
         res.append((i, name))
+        if log.get_level() >= 2:
+            logger.debug('get_windows {} {}'.format(i, name))
+    if log.get_level() >= 2:
+        logger.debug('get_windows end of list')
     return res
 
 
@@ -329,11 +333,23 @@ def wait_not_focused(id, timeout=10):
     raise RuntimeError('Timed out waiting for %s window to lose focus' % id)
 
 
-def search_visible_windows(regex):
+def search_visible_windows(regex, others=None):
     """ Workaround for problems in xdotool failing to match window names """
     r = re.compile(regex)
+    others = [] if others is None else others
+    others_rx = [re.compile(v) for v in others]
     found = []
-    for i in get_windows():
+    windows = get_windows()
+    # First check if we have one of the "others"
+    for c, rx in enumerate(others_rx):
+        for i in windows:
+            if rx.search(i[1]):
+                # Yes, inform it
+                # Note: The main window can be focused with a dialog over it.
+                #       If we found one of these dialogs it means we have a problem, no matters if the main windows is focused
+                raise ValueError(others[c])
+    # Now check for the window we need
+    for i in windows:
         if r.search(i[1]):
             found.append(i[0])
     return found
@@ -349,7 +365,7 @@ def wait_for_window(name, window_regex, timeout=10, focus=True, skip_id=0, other
 
     for i in range(int(timeout/DELAY)):
         try:
-            window_id = search_visible_windows(window_regex)
+            window_id = search_visible_windows(window_regex, others=others)
             if len(window_id):
                 logger.debug('Found %s window (%d)', name, len(window_id))
                 if len(window_id) == 1:

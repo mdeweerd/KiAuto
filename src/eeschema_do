@@ -52,6 +52,7 @@ TITLE_CONFIRMATION = '^Confirmation$'
 TITLE_REMAP_SYMBOLS = '^Remap Symbols$'
 TITLE_ERROR = '^Error$'
 TITLE_WARNING = '^Warning$'
+KI6_LOADING = r'^\[no schematic loaded\] '
 
 
 def dismiss_library_error():
@@ -61,7 +62,10 @@ def dismiss_library_error():
     # There -should- be a way to disable it, but I haven't the magic to drop in the config file yet
     nf_title = TITLE_ERROR
     wait_for_window(nf_title, nf_title, 3)
-    logger.warning('Missing library, please fix it')
+    if cfg.kicad_version >= KICAD_VERSION_5_99:
+        logger.error('Eeschema created an error dialog, expect a fail')
+    else:
+        logger.warning('Missing library, please fix it')
     xdotool(['search', '--onlyvisible', '--name', nf_title, 'windowfocus'])
     xdotool(['key', 'Escape'])
     xdotool(['key', 'Escape'])
@@ -121,7 +125,8 @@ def wait_eeschema_start(cfg):
         failed_focuse = False
         other = None
         try:
-            wait_eeschema(cfg, wait_start, others=[TITLE_CONFIRMATION, TITLE_REMAP_SYMBOLS, TITLE_ERROR, TITLE_WARNING])
+            wait_eeschema(cfg, wait_start, others=[TITLE_CONFIRMATION, TITLE_REMAP_SYMBOLS, TITLE_ERROR, TITLE_WARNING,
+                          KI6_LOADING])
         except RuntimeError:  # pragma: no cover
             logger.debug('Time-out waiting for eeschema, will retry')
             failed_focuse = True
@@ -132,13 +137,16 @@ def wait_eeschema_start(cfg):
         except subprocess.CalledProcessError:
             logger.debug('* Eeschema is no longer running (returned {})'.format(cfg.popen_obj.poll()))
         if not failed_focuse:
-            return
+            return True
         # Failed to find the window
         # Did we find a dialog?
         if other == TITLE_REMAP_SYMBOLS:
             dismiss_remap_helper(cfg)
         elif other == TITLE_ERROR:
             dismiss_library_error()
+            if cfg.kicad_version >= KICAD_VERSION_5_99:
+                time.sleep(1)
+                return False
         elif other == TITLE_CONFIRMATION:
             dismiss_already_running()
         elif other == TITLE_WARNING:
@@ -147,6 +155,9 @@ def wait_eeschema_start(cfg):
             # If we have a damaged file we get a "Warning", pressing ESC fails ...
             logger.error('eeschema reported an error')
             exit(EESCHEMA_ERROR)
+        elif other == KI6_LOADING:
+            # KiCad is loading the file
+            pass
         else:
             # One more time, just 5 seconds
             if retry > 2:
@@ -579,6 +590,7 @@ if __name__ == '__main__':
     flog_out, flog_err = get_log_files(output_dir, 'eeschema')
     for retry in range(3):
         do_retry = False
+        problem = False
         with recorded_xvfb(cfg, retry):
             logger.debug('Starting '+cfg.eeschema)
             with PopenContext([cfg.eeschema, cfg.input_file], close_fds=True, start_new_session=True,
@@ -587,11 +599,14 @@ if __name__ == '__main__':
                 cfg.popen_obj = eeschema_proc
                 logger.debug('EEschema PID: '+str(eeschema_proc.pid))
                 # Wait for Eeschema
-                wait_eeschema_start(cfg)
+                can_retry = wait_eeschema_start(cfg)
                 if eeschema_proc.poll() is not None:
-                    do_retry = True
                     logger.debug('Checking if the X server still there')
                     wait_xserver(cfg.output_dir, 0)
+                    if can_retry:
+                        do_retry = True
+                    else:
+                        problem = True
                 else:
                     if args.command == 'export':
                         # Export
@@ -638,6 +653,9 @@ if __name__ == '__main__':
         logger.warning("Eeschema failed to start retrying ...")
     if do_retry:
         logger.error("Eeschema failed to start try with --time_out_scale")
+        error_level = EESCHEMA_ERROR
+    if problem:
+        logger.error("Eeschema failed to start or reported a fatal error")
         error_level = EESCHEMA_ERROR
     #
     # Exit clean-up
