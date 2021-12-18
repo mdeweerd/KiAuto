@@ -197,12 +197,12 @@ def create_user_hotkeys(cfg):
     with open(cfg.conf_hotkeys, "wt") as text_file:
         text_file.write('common.Control.print\tCtrl+P\n')
         text_file.write('common.Control.plot\tCtrl+Shift+P\n')
+        text_file.write('common.Control.show3DViewer\tAlt+3\n')
         text_file.write('eeschema.EditorControl.exportNetlist\tCtrl+Shift+N\n')
         text_file.write('eeschema.EditorControl.generateBOM\tCtrl+Shift+B\n')
         text_file.write('eeschema.InspectionTool.runERC\tCtrl+Shift+I\n')
         text_file.write('pcbnew.DRCTool.runDRC\tCtrl+Shift+I\n')
         text_file.write('pcbnew.ZoneFiller.zoneFillAll\tB\n')
-        text_file.write('common.Control.show3DViewer\tAlt+3\n')
 
 
 def check_input_file(cfg, no_file, no_ext):
