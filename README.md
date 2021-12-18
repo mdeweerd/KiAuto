@@ -215,12 +215,12 @@ Sometimes we need to ignore some warnings and/or errors reported during the ERC 
 To achieve it you need to create a *filters file*. Each line contains a rule to exclude one or more matching errors. The syntax is:
 
 ```
-ERROR_NUMBER,REGULAR_EXPRESSION
+ERROR_ID,REGULAR_EXPRESSION
 ```
 
 The regular expression must follow the Python syntax. In the simplest case this can be just the text that the error must contain.
 
-The error number is just the KiCad internal number for the error you want to ignore.
+The error id is just the KiCad internal number for the error you want to ignore. For KiCad 6 this is a string, not a number.
 
 Here is an example, suppose our report says:
 
